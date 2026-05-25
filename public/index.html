@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoreDuel - Ultimate Brain Training Arena</title>
+    <!-- Cache busting parameter v=1.4.0 -->
+    <link rel="stylesheet" href="style.css?v=1.4.0">
+</head>
+<body>
+
+    <!-- Beautiful, glassmorphic auth overlay screen -->
+    <div id="auth-overlay" class="auth-overlay active">
+        <div class="auth-card">
+            <div class="auth-logo">CoreDuel</div>
+            <div class="auth-subtitle">Enter the mental battlefield</div>
+            
+            <!-- Login Form -->
+            <form id="auth-login-form" class="auth-form active">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" required placeholder="name@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="auth-btn">Log In</button>
+                <p class="auth-switch-text">Don't have an account? <span id="switch-to-register">Sign Up</span></p>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="auth-register-form" class="auth-form">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="register-name" required placeholder="Alex Mercer">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="register-email" required placeholder="name@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="register-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="auth-btn">Create Account</button>
+                <p class="auth-switch-text">Already registered? <span id="switch-to-login">Log In</span></p>
+            </form>
+            
+            <div class="auth-divider"><span>OR CONTINUE WITH</span></div>
+            
+            <div class="social-auth-buttons">
+                <button class="social-btn google-btn" type="button" id="social-google-btn">
+                    <svg viewBox="0 0 24 24"><path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C17.955 2.192 15.34 1 12.24 1 6.033 1 12.24 12.24s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.985 0-.74-.078-1.306-.176-1.866H12.24z" fill="currentColor"/></svg>
+                    Google
+                </button>
+                <button class="social-btn apple-btn" type="button" id="social-apple-btn">
+                    <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-.96.04-2.13.64-2.82 1.45-.6.7-1.13 1.84-.99 2.94.97.08 2.06-.42 2.82-1.33z" fill="currentColor"/></svg>
+                    Apple
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Mobile Frame Container -->
+    <div class="app-container">
+        
+        <!-- App Header -->
+        <header>
+            <div class="logo-container">
+                <h1>CoreDuel</h1>
+            </div>
+            <div class="header-right">
+                <!-- Streak Badge -->
+                <div class="streak-badge" id="streak-trigger" title="Daily Streak">
+                    <!-- Flame SVG Icon -->
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                    <span id="header-streak-value">0d</span>
+                </div>
+                <!-- Profile Avatar Button -->
+                <div class="profile-placeholder" id="profile-trigger">
+                    <img id="header-avatar" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=CorePlayer" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main>
+            
+            <!-- HOME VIEW -->
+            <div id="page-home" class="page-view active">
+                
+                <!-- Dashboard Level/Stats Box -->
+                <div class="dashboard-card">
+                    <div class="user-progress" style="align-items: flex-start;">
+                        <div class="user-level-info">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <h3 id="dash-lvl-title" style="margin:0;">Level 1</h3>
+                                <span class="rank-badge rank-bronze" id="dash-rank-badge">Bronze III</span>
+                            </div>
+                            <p id="dash-xp-progress" style="margin-bottom: 2px;">0 / 400 XP</p>
+                            <p id="dash-elo-progress" style="font-size: 11px; font-weight: 700; color: var(--color-accent);">ELO: 200</p>
+                        </div>
+                        <div class="user-currency">
+                            <!-- Gold Coin SVG Icon -->
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill: #facc15; color: #facc15;">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 8v8M9 10h6M9 13h5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span id="dash-coins" style="color: #facc15; font-weight: 800;">1000</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="dash-xp-bar" style="width: 0%;"></div>
+                    </div>
+
+                    <div class="quick-stats">
+                        <div class="stat-box">
+                            <span class="stat-label">Math Elo Rating</span>
+                            <span class="stat-value highlight" id="stat-math-best">100</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">IQ Elo Rating</span>
+                            <span class="stat-value highlight" id="stat-iq-best">100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duels Area -->
+                <div>
+                    <h2 class="section-title">Select Arena</h2>
+                    <p class="section-desc">Choose a challenge to test your mind and earn rewards.</p>
+                    
+                    <div class="duel-selection">
+                        <!-- Math Duel Card (Ranked) -->
+                        <div class="duel-card" id="card-math-duel">
+                            <div class="duel-info">
+                                <div class="duel-icon-container">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                        <line x1="7" y1="9" x2="11" y2="9" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="7" y1="13" x2="11" y2="13" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="7" y1="17" x2="11" y2="17" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="14" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="14" y1="12" x2="17" y2="16" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="17" y1="12" x2="14" y2="16" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="duel-details">
+                                    <div style="display:flex; align-items:center; gap: 8px;">
+                                        <h3>Math Duel</h3>
+                                        <span class="competitions-badge">Ranked</span>
+                                    </div>
+                                    <p>Speed arithmetic race against opponents</p>
+                                </div>
+                            </div>
+                            <div class="duel-action-btn">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- IQ Duel Card (Ranked) -->
+                        <div class="duel-card" id="card-iq-duel">
+                            <div class="duel-info">
+                                <div class="duel-icon-container">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.5 2A4.5 4.5 0 0 0 5 6.5c0 1.38.62 2.6 1.6 3.42C6.22 10.9 6 11.93 6 13a4 4 0 0 0 4 4c.3 0 .58-.04.86-.1A4.5 4.5 0 0 0 15 20.5c0 .35-.04.7-.12 1.04C16.9 21.03 18 19.14 18 17a4.5 4.5 0 0 0-2.5-4.04 4.5 4.5 0 0 0 0-8.92c-.37-.78-.96-1.42-1.7-1.8A4.5 4.5 0 0 0 9.5 2z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                        <path d="M12 5v12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+                                    </svg>
+                                </div>
+                                <div class="duel-details">
+                                    <div style="display:flex; align-items:center; gap: 8px;">
+                                        <h3>IQ Duel</h3>
+                                        <span class="competitions-badge">Ranked</span>
+                                    </div>
+                                    <p>Test logical sequences under pressure</p>
+                                </div>
+                            </div>
+                            <div class="duel-action-btn">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Competitions Card -->
+                        <div class="duel-card" id="card-competitions">
+                            <div class="duel-info">
+                                <div class="duel-icon-container" style="background: rgba(250, 204, 21, 0.1); border-color: rgba(250, 204, 21, 0.25);">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill: var(--color-accent);">
+                                        <path d="M20.9 2.9a2 2 0 0 0-2.8 0L12 9l-6.1-6.1a2 2 0 0 0-2.8 2.8L9.2 11.8 3 18v3h3l6.2-6.2 6.1 6.1a2 2 0 0 0 2.8-2.8L15 12l5.9-5.9a2 2 0 0 0 0-2.8z"/>
+                                    </svg>
+                                </div>
+                                <div class="duel-details">
+                                    <div style="display:flex; align-items:center;">
+                                        <h3>Competitions</h3>
+                                        <span class="competitions-badge" style="background:linear-gradient(90deg, #1e40af, #3b82f6); color:#ffffff; font-weight: 800; border: none; padding:2px 8px;">NEW</span>
+                                    </div>
+                                    <p>Official tournaments & community leagues</p>
+                                </div>
+                            </div>
+                            <div class="duel-action-btn">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RANKING VIEW -->
+            <div id="page-ranking" class="page-view">
+                <div>
+                    <h2 class="section-title">Leaderboard</h2>
+                    <p class="section-desc">Global champions and ranking podium.</p>
+                </div>
+
+                <!-- Leaderboard Category Tabs -->
+                <div class="leaderboard-tabs" id="leaderboard-categories-tabbar">
+                    <button class="lb-tab active" data-lb-cat="global">🌍 Global</button>
+                    <button class="lb-tab" data-lb-cat="math">➕ Math Elo</button>
+                    <button class="lb-tab" data-lb-cat="iq">🧠 IQ Elo</button>
+                </div>
+
+                <!-- Podium Graphics -->
+                <div class="podium-container">
+                    <!-- 2nd Place -->
+                    <div class="podium-spot second">
+                        <div class="podium-avatar">
+                            <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Sasha" alt="2nd">
+                            <div class="podium-badge">2</div>
+                        </div>
+                        <span class="podium-username">Sasha</span>
+                        <span class="podium-score"><span id="p2-score">192</span> pts</span>
+                    </div>
+                    <!-- 1st Place -->
+                    <div class="podium-spot first">
+                        <div class="podium-avatar" style="border-width: 4px;">
+                            <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Nico" alt="1st">
+                            <div class="podium-badge">1</div>
+                        </div>
+                        <span class="podium-username">Nico</span>
+                        <span class="podium-score"><span id="p1-score">285</span> pts</span>
+                    </div>
+                    <!-- 3rd Place -->
+                    <div class="podium-spot third">
+                        <div class="podium-avatar">
+                            <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Alex" alt="3rd">
+                            <div class="podium-badge">3</div>
+                        </div>
+                        <span class="podium-username">Alex</span>
+                        <span class="podium-score"><span id="p3-score">184</span> pts</span>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Table -->
+                <div class="leaderboard-card" id="leaderboard-list">
+                    <!-- Dynamically populated via JS (Top 5 ONLY) -->
+                </div>
+                
+                <!-- Separate Row for User when not in Top 5 -->
+                <div class="leaderboard-divider" id="leaderboard-my-divider" style="display:none; text-align:center; font-size:11px; font-weight:800; letter-spacing:1px; color:var(--color-text-secondary); margin: 15px 0;">YOUR POSITION</div>
+                <div id="leaderboard-my-row">
+                    <!-- Dynamically populated via JS -->
+                </div>
+            </div>
+
+            <!-- PREMIUM DETAIL SPA VIEW -->
+            <div id="page-premium" class="page-view">
+                <div class="premium-splash-header" style="text-align:center; padding: 20px 10px;">
+                    <div class="versus-player-avatar" style="width: 80px; height: 80px; margin: 0 auto 12px auto; border-color: #facc15; box-shadow: 0 0 15px rgba(250,204,21,0.4);">
+                        <svg viewBox="0 0 24 24" style="fill:#facc15; width:100%; height:100%;"><path d="M12 2L1 21h22L12 2zm0 4l7.5 13h-15L12 6z"/></svg>
+                    </div>
+                    <h2 style="font-size:24px; font-weight:900; background:linear-gradient(90deg, #facc15, #ca8a04); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.5px;">CoreDuel Premium</h2>
+                    <p style="font-size:12px; color:var(--color-text-secondary); max-width:280px; margin: 6px auto 0 auto; line-height:1.5;">Unlock exclusive perks, premium customizable pass rewards, and show off your golden status!</p>
+                </div>
+
+                <div class="premium-perks-list" style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                    <div style="display:flex; align-items:center; gap:12px; background:rgba(250, 204, 21, 0.05); border:1px solid rgba(250, 204, 21, 0.1); border-radius:12px; padding:12px 16px;">
+                        <span style="font-size:20px;">⭐</span>
+                        <div style="text-align:left;">
+                            <h4 style="font-size:13px; font-weight:800; color:#facc15; margin:0;">Premium Pass Claims</h4>
+                            <p style="font-size:11px; color:var(--color-text-secondary); margin:2px 0 0 0;">Unlock the bottom Premium tier on the CorePass for double payouts.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255, 255, 255, 0.05); border-radius:12px; padding:12px 16px;">
+                        <span style="font-size:20px;">🔥</span>
+                        <div style="text-align:left;">
+                            <h4 style="font-size:13px; font-weight:800; margin:0;">Flame Profile Aura</h4>
+                            <p style="font-size:11px; color:var(--color-text-secondary); margin:2px 0 0 0;">A shiny golden indicator on your profile page and leaderboard rows.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255, 255, 255, 0.05); border-radius:12px; padding:12px 16px;">
+                        <span style="font-size:20px;">💰</span>
+                        <div style="text-align:left;">
+                            <h4 style="font-size:13px; font-weight:800; margin:0;">Free Username Changes</h4>
+                            <p style="font-size:11px; color:var(--color-text-secondary); margin:2px 0 0 0;">Change your display name at settings whenever you want without the 1k coins fee.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="result-btn" id="buy-premium-action-btn" style="background:linear-gradient(90deg, #facc15, #eab308); color:#000; font-weight:900; width:100%; border:none; margin-top:20px; box-shadow: 0 0 15px rgba(250,204,21,0.3);">
+                    Activate Premium (Simulated)
+                </button>
+            </div>
+
+            <!-- PASS VIEW -->
+            <div id="page-pass" class="page-view">
+                <!-- Fixed Header Section ( Frosted Glass ) -->
+                <div class="pass-header">
+                    <div class="pass-title-row">
+                        <div style="display:flex; align-items:center;">
+                            <h2>CorePass</h2>
+                            <span class="pass-badge-large premium-badge" id="pass-premium-status" style="background:#facc15; color:#000; margin-left: 10px; cursor: pointer; border: none; font-weight:900;">Get Premium</span>
+                        </div>
+                        <span class="pass-badge-large">Season 1</span>
+                    </div>
+                    <p class="section-desc" style="color: rgba(255,255,255,0.7); margin-bottom: 2px;">Unlock legendary rewards as your division increases!</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="pass-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="pass-progress-info">
+                        <span>Unlocked: <strong id="pass-unlocked-count">0 / 10</strong> rewards</span>
+                        <span id="pass-xp-needed">400 XP to next tier</span>
+                    </div>
+                </div>
+
+                <!-- Scrollable Rewards List -->
+                <div class="pass-scroll-area" id="pass-scroll-area">
+                    <div class="pass-list" id="pass-tier-list">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SHOP VIEW -->
+            <div id="page-shop" class="page-view">
+                <div class="shop-balance">
+                    <span class="shop-balance-label">Your Balance</span>
+                    <div class="shop-balance-value">
+                        <!-- Gold Coin Icon -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill: #facc15; color: #facc15;">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 8v8M9 10h6M9 13h5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span id="shop-coins-val" style="color: #facc15; font-weight: 800;">0</span>
+                    </div>
+                </div>
+
+                <!-- Upgraded Category Navigation Tabs -->
+                <div class="shop-tabs" id="shop-categories-tabbar">
+                    <button class="shop-tab active" data-shop-cat="frames">Frames</button>
+                    <button class="shop-tab" data-shop-cat="titles">Titles</button>
+                    <button class="shop-tab" data-shop-cat="backgrounds">Backgrounds</button>
+                </div>
+
+                <!-- Dynamically populated Grid container -->
+                <div class="shop-grid" id="shop-items-grid">
+                    <!-- Dynamic Kachel-Tiles rendered via JS -->
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Dynamic Slidebar Navigation Container (Apple Inspired) -->
+        <div class="tab-bar-container" data-active-index="0" id="bottom-tabbar">
+            <div class="tab-slider"></div>
+            
+            <button class="tab-btn active" data-tab="home" data-index="0">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>Home</span>
+            </button>
+            
+            <button class="tab-btn" data-tab="ranking" data-index="1">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span>Ranking</span>
+            </button>
+            
+            <!-- Highlighted Premium tab option -->
+            <button class="tab-btn premium-tab-btn" data-tab="premium" data-index="2" id="bottom-premium-btn">
+                <svg viewBox="0 0 24 24" style="fill:#facc15;">
+                    <path d="M12 2L1 21h22L12 2zm0 4l7.5 13h-15L12 6z"/>
+                </svg>
+                <span style="color:#facc15; font-weight:800;">Premium</span>
+            </button>
+            
+            <button class="tab-btn" data-tab="pass" data-index="3">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+                </svg>
+                <span>Pass</span>
+            </button>
+            
+            <button class="tab-btn" data-tab="shop" data-index="4">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span>Shop</span>
+            </button>
+        </div>
+
+        <!-- ==================== GAME SCREENS ==================== -->
+
+        <!-- Math/IQ Ranked Duel Game View -->
+        <div id="game-competition" class="game-view">
+            <div class="game-header">
+                <div class="game-close-btn" id="comp-close-trigger">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </div>
+                <div class="game-title" id="comp-game-title">Ranked Matchmaking</div>
+                <div class="game-timer" id="comp-timer" style="display:none;">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
+                    </svg>
+                    <span id="comp-timer-val">35</span>
+                </div>
+            </div>
+
+            <!-- Matchmaker Search / Queue Panel -->
+            <div class="matchmaking-panel" id="comp-queue-panel">
+                <div class="radar-circle">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20.9 2.9a2 2 0 0 0-2.8 0L12 9l-6.1-6.1a2 2 0 0 0-2.8 2.8L9.2 11.8 3 18v3h3l6.2-6.2 6.1 6.1a2 2 0 0 0 2.8-2.8L15 12l5.9-5.9a2 2 0 0 0 0-2.8z"/>
+                    </svg>
+                </div>
+                <div class="matchmaking-status" id="comp-queue-status">Finding suitable opponent...</div>
+                <button class="result-btn" id="comp-cancel-btn" style="max-width:200px; background: rgba(255,255,255,0.05); color:#ffffff; border: 1px solid rgba(255,255,255,0.1)">Cancel Queue</button>
+            </div>
+
+            <!-- Cinematic Faceoff Takeover Panel (State 2) -->
+            <div class="cinematic-faceoff-panel" id="comp-faceoff-panel" style="display:none;">
+                <!-- Fullscreen Diagonal background splits -->
+                <div class="faceoff-bg-split left-side"></div>
+                <div class="faceoff-bg-split right-side"></div>
+                
+                <div class="faceoff-header-text">
+                    <span class="match-found-title">MATCH FOUND</span>
+                    <span class="battle-sub-title">PREPARE YOUR MIND</span>
+                </div>
+                
+                <div class="cinematic-versus-container">
+                    <!-- Me Side -->
+                    <div class="cinematic-player me" id="comp-card-me">
+                        <div class="avatar-orbit-wrapper">
+                            <div class="orbit-ring outer"></div>
+                            <div class="orbit-ring inner"></div>
+                            <div class="versus-player-avatar">
+                                <img id="comp-faceoff-my-avatar" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=CorePlayer" alt="Me">
+                            </div>
+                        </div>
+                        <div class="player-info-card">
+                            <span class="versus-name">You</span>
+                            <span class="rank-badge rank-silber" id="comp-faceoff-my-badge">Silber II</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Massive Reactor VS Badge -->
+                    <div class="cinematic-vs-reactor">
+                        <div class="reactor-glow"></div>
+                        <div class="reactor-core">
+                            <span>VS</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Opponent Side -->
+                    <div class="cinematic-player opponent" id="comp-opponent-card">
+                        <div class="avatar-orbit-wrapper">
+                            <div class="orbit-ring outer"></div>
+                            <div class="orbit-ring inner"></div>
+                            <div class="versus-player-avatar">
+                                <img id="comp-opp-avatar" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Opponent" alt="Opponent">
+                            </div>
+                        </div>
+                        <div class="player-info-card">
+                            <span class="versus-name" id="comp-opp-name">Nico</span>
+                            <span class="rank-badge rank-silber" id="comp-faceoff-opp-badge">Silber II</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faceoff-footer">
+                    <div class="countdown-label" id="comp-faceoff-countdown">Starting in 3...</div>
+                    <div class="countdown-bar-container">
+                        <div class="countdown-bar" id="comp-faceoff-countdown-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battle Stage Panel -->
+            <div class="game-play-area" id="comp-battle-panel" style="display:none; gap:20px;">
+                <!-- Real-time progress bars for user and simulated bot solver -->
+                <div class="battle-progress-row">
+                    <div class="battle-progress-item">
+                        <span class="battle-pname">You</span>
+                        <div class="battle-pbar-bg">
+                            <div class="battle-pbar-fill" id="comp-pbar-user"></div>
+                        </div>
+                        <span class="battle-pscore" id="comp-score-user">0 Correct | 0 Wrong</span>
+                    </div>
+                    <div class="battle-progress-item">
+                        <span class="battle-pname" id="comp-battle-opp-name">Opponent</span>
+                        <div class="battle-pbar-bg">
+                            <div class="battle-pbar-fill opponent" id="comp-pbar-opp"></div>
+                        </div>
+                        <span class="battle-pscore" id="comp-score-opp">0 Correct | 0 Wrong</span>
+                    </div>
+                </div>
+
+                <div class="question-container">
+                    <div class="question-text" id="comp-question">9 × 8</div>
+                    <div class="question-instruction" id="comp-instruction">Solve quickly to beat your opponent!</div>
+                </div>
+
+                <div class="options-grid" id="comp-options-container">
+                    <!-- Choice Buttons -->
+                </div>
+            </div>
+
+            <!-- Waiting for Opponent Stage (State 4) -->
+            <div class="waiting-opponent-panel" id="comp-waiting-panel" style="display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px; text-align:center; padding:30px 10px; height:100%;">
+                <div class="loader-spinner"></div>
+                <div class="waiting-status" style="font-size:18px; font-weight:800; animation:pulse-text 1.5s infinite alternate;">Waiting for opponent to finish...</div>
+                <div class="waiting-sub" style="font-size:13px; color:var(--color-text-secondary);">Your Score: <span id="waiting-my-score" style="color:var(--color-accent); font-weight:800; font-size:16px;">0/10</span></div>
+            </div>
+
+        </div>
+
+        <!-- ==================== MODALS & OVERLAYS ==================== -->
+
+        <!-- Tournament Mode Modal (Competitions - Coming Soon) -->
+        <div class="modal-overlay" id="modal-tournament">
+            <div class="result-card" style="max-width:340px; border-color: rgba(250, 204, 21, 0.25);">
+                <div class="result-icon" style="background: rgba(250, 204, 21, 0.1); border-color: var(--color-accent);">
+                    <svg viewBox="0 0 24 24" style="fill: var(--color-accent); filter: drop-shadow(0 0 5px rgba(250,204,21,0.5));">
+                        <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.44 1.72 4.48 4 4.9L9 18v2H5v2h14v-2h-4v-2l2-3.1c2.28-.42 4-2.46 4-4.9V7c0-1.1-.9-2-2-2z"/>
+                    </svg>
+                </div>
+                <div class="result-title" style="color:var(--color-text-primary); font-size:22px;">Tournament League</div>
+                <div class="result-subtitle" style="color:var(--color-accent); letter-spacing:1px; font-weight:800; font-size:12px;">COMING SOON</div>
+                <p style="font-size:12px; color:var(--color-text-secondary); line-height:1.6; margin-top:-8px;">
+                    Compete in structured weekly brackets, win high-tier unique customizations, and climb the Grandmaster ladder in live multiplayer events!
+                </p>
+                <button class="result-btn" id="tournament-close-btn" style="width:100%;">Close</button>
+            </div>
+        </div>
+
+        <!-- Weekly Streak Check-in Calendar Modal -->
+        <div class="modal-overlay" id="modal-streak">
+            <div class="result-card" style="max-width:380px; padding:24px; width:90%;">
+                <button class="profile-modal-close" id="streak-close-btn" style="position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:var(--color-text-muted);"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+                
+                <div class="result-icon" style="background: rgba(239, 68, 68, 0.1); border-color: #ef4444; width:64px; height:64px; margin-top:8px;">
+                    <svg viewBox="0 0 24 24" style="fill: #ef4444; width:28px; height:28px; filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.6));">
+                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                </div>
+                
+                <div class="result-title" style="font-size:20px; margin-top:-8px;">Weekly Check-in</div>
+                <div class="result-subtitle" id="streak-modal-count-desc" style="color:var(--color-accent); font-weight:800; font-size:13px; margin-top:-14px;">0 Day Streak Active!</div>
+                
+                <!-- 7 Days Grid -->
+                <div class="streak-calendar-grid" id="streak-calendar-grid">
+                    <!-- Dynamic check-in slots -->
+                </div>
+                
+                <button class="result-btn" id="streak-claim-btn" style="width:100%;">Claim Day Check-in</button>
+            </div>
+        </div>
+
+        <!-- Game Result Overlay -->
+        <div class="modal-overlay" id="modal-result">
+            <div class="result-card">
+                <div class="result-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.44 1.72 4.48 4 4.9L9 18v2H5v2h14v-2h-4v-2l2-3.1c2.28-.42 4-2.46 4-4.9V7c0-1.1-.9-2-2-2zM5 10V7h2v5.18c-1.16-.41-2-1.46-2-2.18zm14 0c0 .72-.84 1.77-2 2.18V7h2v3z"/>
+                    </svg>
+                </div>
+                <div class="result-title" id="result-status-title">Victory!</div>
+                <div class="result-subtitle" id="result-game-desc">You completed the Math Duel</div>
+                
+                <div class="result-rewards-grid">
+                    <div class="result-reward-box" style="grid-column: span 2;">
+                        <span class="result-reward-val" id="result-coins" style="color:var(--color-accent);">+50 Coins</span>
+                        <span class="result-reward-label">Rank Details</span>
+                    </div>
+                </div>
+
+                <button class="result-btn" id="result-action-btn">Back to Home</button>
+            </div>
+        </div>
+
+        <!-- Profile Detail & Customization Modal -->
+        <div class="modal-overlay" id="modal-profile">
+            <div class="profile-modal">
+                <button class="profile-modal-close" id="profile-close-btn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+                
+                <div class="profile-modal-header" style="background: none !important;"> <!-- Profile bg should be normal, not master particles -->
+                    <div class="profile-modal-avatar" id="modal-avatar-preview">
+                        <img id="profile-detail-avatar" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=CorePlayer" alt="Avatar">
+                    </div>
+                    <div class="profile-modal-name" id="profile-player-username">CorePlayer</div>
+                    <div class="profile-modal-title" id="profile-detail-title">Novice Dueler</div>
+                    <span class="rank-badge rank-bronze" id="profile-detail-rank" style="margin-top: 2px;">Bronze III</span>
+                </div>
+
+                <div class="profile-modal-stats">
+                    <div class="stat-box">
+                        <span class="stat-label">Rating</span>
+                        <span class="stat-value" id="profile-stat-elo">200 Elo</span>
+                    </div>
+                    <span class="stat-box" style="display:flex; flex-direction:column; justify-content:center;">
+                        <span class="stat-label">Active Streak</span>
+                        <span class="stat-value" id="profile-stat-streak" style="color: #ef4444;">0d</span>
+                    </span>
+                    <div class="stat-box">
+                        <span class="stat-label">Total Coins</span>
+                        <span class="stat-value" id="profile-stat-coins">1000</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Level</span>
+                        <span class="stat-value" id="profile-stat-level">Lvl 1</span>
+                    </div>
+                </div>
+                
+                <!-- Large Settings Button -->
+                <div style="margin-top: 15px;">
+                    <button class="result-btn" id="open-settings-modal-btn" style="width: 100%; margin-top: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:currentColor;"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3-1.07-3-3s1.07-3 3-3s3 1.07 3 3s-1.07 3-3 3z"/></svg>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal (Sub-panel of Profile) -->
+        <div class="modal-overlay" id="modal-settings">
+            <div class="profile-modal" style="max-width:360px; padding: 24px; position:relative;">
+                <button class="profile-modal-close" id="settings-close-btn" style="position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:var(--color-text-muted);"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+                
+                <div style="font-size:16px; font-weight:800; letter-spacing:1px; color:var(--color-accent); margin-bottom:20px; text-transform:uppercase; text-align:center;">Settings</div>
+                
+                <div class="settings-content" style="display:flex; flex-direction:column; gap:16px; text-align:left;">
+                    <!-- Change Username -->
+                    <div>
+                        <label style="font-size:11px; font-weight:800; color:var(--color-text-secondary); display:block; margin-bottom:6px; text-transform:uppercase;">Change Username</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="settings-username-input" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); padding:8px 12px; border-radius:8px; font-family:inherit; color:#fff; font-size:12px; outline:none;">
+                            <button id="settings-username-btn" style="background:var(--color-accent); border:none; padding:0 14px; border-radius:8px; font-size:11px; font-weight:800; color:#000; cursor:pointer;">Update</button>
+                        </div>
+                        <span id="settings-username-cost" style="font-size:10px; color:var(--color-text-muted); margin-top:4px; display:block;">First change: Free</span>
+                    </div>
+
+                    <!-- Volume sliders -->
+                    <div>
+                        <label style="font-size:11px; font-weight:800; color:var(--color-text-secondary); display:block; margin-bottom:4px; text-transform:uppercase;">Music Volume</label>
+                        <input type="range" class="settings-range" min="0" max="100" value="75" style="width:100%;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:800; color:var(--color-text-secondary); display:block; margin-bottom:4px; text-transform:uppercase;">SFX Volume</label>
+                        <input type="range" class="settings-range" min="0" max="100" value="85" style="width:100%;">
+                    </div>
+
+                    <!-- Language select -->
+                    <div>
+                        <label style="font-size:11px; font-weight:800; color:var(--color-text-secondary); display:block; margin-bottom:4px; text-transform:uppercase;">Language</label>
+                        <select style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); padding:8px; border-radius:8px; color:#fff; font-family:inherit; font-size:12px; outline:none;">
+                            <option value="de">Deutsch</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <!-- AGB & Datenschutz -->
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:8px; padding:10px; font-size:11px; display:flex; flex-direction:column; gap:8px;">
+                        <a href="#" style="color:var(--color-accent); text-decoration:none; font-weight:700;" onclick="alert('AGB:\n1. Geltungsbereich...\n2. Nutzung der Services...\n3. Haftungsausschluss...')">Nutzungsbedingungen (AGB)</a>
+                        <a href="#" style="color:var(--color-accent); text-decoration:none; font-weight:700;" onclick="alert('Datenschutzrichtlinie:\nWir speichern deine Profildaten, Passwörter werden sicher gehasht. Keine Weitergabe an Dritte.')">Datenschutzerklärung (Privacy Policy)</a>
+                    </div>
+
+                    <!-- Account Controls -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
+                        <button class="result-btn" id="settings-logout-btn" style="margin-top:0; font-size:11px; padding:10px 0; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); color:#ef4444;">Logout</button>
+                        <button class="result-btn" id="settings-delete-btn" style="margin-top:0; font-size:11px; padding:10px 0; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:var(--color-text-muted);">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Item Inspector Modal -->
+        <div class="modal-overlay" id="modal-shop-inspect">
+            <div class="profile-modal" style="max-width:340px; text-align:center;">
+                <button class="profile-modal-close" id="inspect-close-btn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+                
+                <div style="font-size:16px; font-weight:800; letter-spacing:1px; color:var(--color-accent); margin-bottom:15px; text-transform:uppercase;">Inspect Item</div>
+                
+                <!-- Live Avatar Preview Arena -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px 0; margin-bottom: 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; position:relative;">
+                    <div class="profile-modal-avatar" id="inspect-avatar-preview">
+                        <img id="inspect-avatar-img" src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=CorePlayer" alt="Avatar Preview">
+                    </div>
+                    <div style="font-size:14px; font-weight:800; color:var(--color-accent);" id="inspect-preview-title-badge">Novice Dueler</div>
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <h3 style="font-size:18px; font-weight:800; margin-bottom:6px;" id="inspect-item-name">Orange Fire Frame</h3>
+                    <p style="font-size:12px; color:var(--color-text-secondary); line-height:1.6;" id="inspect-item-desc">A spectacular blazing orange frame for champions.</p>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:12px; margin-top:20px;">
+                    <div style="display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); padding:10px 14px; border-radius:12px; height:48px;" id="inspect-price-container">
+                        <!-- Coin Icon -->
+                        <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:var(--color-accent);">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 8v8M9 10h6" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span style="font-weight:800; font-size:14px; color:var(--color-accent);" id="inspect-item-price">1,000</span>
+                    </div>
+                    <button class="result-btn" id="inspect-buy-btn" style="flex:1; margin-top:0; height:48px;">Purchase</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Socket.io client script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- App Script with cache busting v=1.4.0 -->
+    <script src="app.js?v=1.4.0"></script>
+</body>
+</html>
