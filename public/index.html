@@ -9,8 +9,126 @@
 </head>
 <body>
 
+    <!-- Onboarding Overlay Screen -->
+    <div id="onboarding-overlay" class="onboarding-overlay active">
+        <div class="onboarding-card">
+            <!-- Progress / Dots -->
+            <div class="onboarding-header">
+                <div class="onboarding-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="onboarding-skip-btn" id="onboarding-skip-btn">Skip</button>
+            </div>
+
+            <!-- Onboarding Slides -->
+            <div class="onboarding-slides-container">
+                
+                <!-- Slide 1: Welcome & Animation -->
+                <div class="onboarding-slide active" data-slide="0">
+                    <div class="onboarding-graphic-container">
+                        <div class="brain-reactor">
+                            <div class="ring r-one"></div>
+                            <div class="ring r-two"></div>
+                            <div class="ring r-three"></div>
+                            <div class="brain-core">🧠</div>
+                        </div>
+                    </div>
+                    <h2 class="onboarding-title">Welcome to CoreDuel</h2>
+                    <p class="onboarding-text">Are you ready to test your mental limits? Engage in high-speed arithmetic and logic duels against players worldwide!</p>
+                </div>
+
+                <!-- Slide 2: Survey -->
+                <div class="onboarding-slide" data-slide="1">
+                    <h2 class="onboarding-title">How did you hear about us?</h2>
+                    <p class="onboarding-text">Help us grow our dueling community by choosing where you found us:</p>
+                    <div class="survey-options-grid">
+                        <button class="survey-option-btn" data-choice="tiktok">
+                            <span class="option-icon">📱</span> TikTok / Instagram
+                        </button>
+                        <button class="survey-option-btn" data-choice="friends">
+                            <span class="option-icon">👥</span> Friends / Family
+                        </button>
+                        <button class="survey-option-btn" data-choice="search">
+                            <span class="option-icon">🔍</span> Google Search
+                        </button>
+                        <button class="survey-option-btn" data-choice="school">
+                            <span class="option-icon">🎒</span> School / Uni
+                        </button>
+                        <button class="survey-option-btn" data-choice="other">
+                            <span class="option-icon">💡</span> Other
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Ranks -->
+                <div class="onboarding-slide" data-slide="2">
+                    <div class="onboarding-graphic-container" style="width: 100%; max-width: 340px; height: 120px;">
+                        <div class="progression-timeline">
+                            <div class="timeline-line">
+                                <div class="timeline-pulse"></div>
+                            </div>
+                            <div class="timeline-node n-bronze">
+                                <div class="node-dot">🥉</div>
+                                <span class="node-badge">Bronze</span>
+                                <span class="node-elo">100 Elo</span>
+                            </div>
+                            <div class="timeline-node n-gold">
+                                <div class="node-dot">🥇</div>
+                                <span class="node-badge">Gold</span>
+                                <span class="node-elo">600 Elo</span>
+                            </div>
+                            <div class="timeline-node n-gm">
+                                <div class="node-dot">🌌</div>
+                                <span class="node-badge">Grandmaster</span>
+                                <span class="node-elo">1200+ Elo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="onboarding-title">Climb the Global Ranks</h2>
+                    <p class="onboarding-text">Engage in ranked duels to earn ELO. Advance from Bronze to Grandmaster and place among top mental athletes!</p>
+                </div>
+
+                <!-- Slide 4: Competitions & Tournaments -->
+                <div class="onboarding-slide" data-slide="3">
+                    <div class="onboarding-graphic-container">
+                        <div class="trophy-reactor">
+                            <div class="trophy-glow"></div>
+                            <div class="trophy-core">🏆</div>
+                            <div class="trophy-particles">
+                                <span class="t-sparkle">★</span>
+                                <span class="t-sparkle">✦</span>
+                                <span class="t-sparkle">★</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="onboarding-title">Live Tournaments & Leagues</h2>
+                    <p class="onboarding-text">Join official weekly Tournaments and compete in multiplayer bracket elimination cups to win exclusive rewards!</p>
+                </div>
+
+                <!-- Slide 5: Get Started -->
+                <div class="onboarding-slide" data-slide="4">
+                    <div class="onboarding-graphic-container">
+                        <div class="glowing-crown-reactor">
+                            <span>👑</span>
+                        </div>
+                    </div>
+                    <h2 class="onboarding-title">Enter the Battlefield</h2>
+                    <p class="onboarding-text">Create your secure account to save your ELO rating, streaks, and inventory purchases.</p>
+                </div>
+
+            </div>
+
+            <!-- Navigation Button -->
+            <button class="auth-btn onboarding-next-btn" id="onboarding-next-btn">Next</button>
+        </div>
+    </div>
+
     <!-- Beautiful, glassmorphic auth overlay screen -->
-    <div id="auth-overlay" class="auth-overlay active">
+    <div id="auth-overlay" class="auth-overlay">
         <div class="auth-card">
             <div class="auth-logo">CoreDuel</div>
             <div class="auth-subtitle">Enter the mental battlefield</div>
@@ -93,7 +211,7 @@
             <div id="page-home" class="page-view active">
                 
                 <!-- Dashboard Level/Stats Box -->
-                <div class="dashboard-card">
+                <div class="dashboard-card" id="home-dashboard-card">
                     <div class="user-progress" style="align-items: flex-start;">
                         <div class="user-level-info">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
@@ -602,6 +720,7 @@
                 </div>
 
                 <button class="result-btn" id="result-action-btn">Back to Home</button>
+                <button class="result-btn" id="result-rematch-btn" style="width: 100%; margin-top: 10px; background: linear-gradient(135deg, #d97706, #fbbf24); color: #000; font-weight: 900; border: none; box-shadow: 0 0 15px rgba(251, 191, 36, 0.35);">🔥 DOUBLE OR NOTHING</button>
             </div>
         </div>
 

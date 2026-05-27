@@ -36,6 +36,15 @@ function safeText(id, text) {
 async function loadState() {
     const savedToken = localStorage.getItem('coreduel_jwt_token');
     const authOverlay = document.getElementById('auth-overlay');
+    const onboardingOverlay = document.getElementById('onboarding-overlay');
+    const onboardingCompleted = localStorage.getItem('coreduel_onboarding_completed') === 'true';
+
+    if (onboardingCompleted) {
+        if (onboardingOverlay) onboardingOverlay.classList.remove('active');
+    } else {
+        if (onboardingOverlay) onboardingOverlay.classList.add('active');
+        if (authOverlay) authOverlay.classList.remove('active');
+    }
     
     if (savedToken) {
         try {
@@ -69,7 +78,10 @@ async function loadState() {
             userState = { ...userState, ...JSON.parse(savedLocal) };
         } catch (e) {}
     }
-    if (authOverlay) authOverlay.classList.add('active');
+    
+    if (onboardingCompleted) {
+        if (authOverlay) authOverlay.classList.add('active');
+    }
 }
 
 function saveState() {
@@ -170,6 +182,35 @@ function updateUI() {
     safeText('stat-math-best', userState.mathBest);
     safeText('stat-iq-best', userState.iqBest);
     safeText('shop-coins-val', userState.coins);
+    
+    // Render Grandmaster background equipped states on Dashboard Card & Profile Modal
+    const dashboardCard = document.getElementById('home-dashboard-card');
+    const profileModalCard = document.querySelector('#modal-profile .profile-modal');
+    const isMasterBg = (userState.equippedBackground === 'bg-master');
+    const particlesTemplate = `
+        <div class="master-bg-wrapper">
+            <div class="shop-bg-particles">
+                <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+            </div>
+            <div class="master-shimmer-sweep"></div>
+            <div class="cosmic-orbit-ring"></div>
+        </div>
+    `;
+    
+    [dashboardCard, profileModalCard].forEach(el => {
+        if (!el) return;
+        const existingParticles = el.querySelector('.master-bg-wrapper');
+        if (existingParticles) existingParticles.remove();
+        
+        if (isMasterBg) {
+            el.classList.add('bg-master-equipped');
+            el.insertAdjacentHTML('afterbegin', particlesTemplate);
+        } else {
+            el.classList.remove('bg-master-equipped');
+        }
+    });
     
     const detailAvatar = document.getElementById('profile-detail-avatar');
     if (detailAvatar) detailAvatar.src = avatarUrl;
@@ -337,8 +378,14 @@ function renderLeaderboardItem(container, player, i) {
     let particlesHtml = '';
     if (bgClass === 'bg-master-equipped') {
         particlesHtml = `
-            <div class="shop-bg-particles">
-                <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+            <div class="master-bg-wrapper">
+                <div class="shop-bg-particles">
+                    <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                    <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                    <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                </div>
+                <div class="master-shimmer-sweep"></div>
+                <div class="cosmic-orbit-ring"></div>
             </div>
         `;
     }
@@ -530,7 +577,17 @@ function renderShop() {
             
             let particlesHtml = '';
             if (itemId === 'bg-master') {
-                particlesHtml = `<div class="shop-bg-particles"><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span></div>`;
+                particlesHtml = `
+                    <div class="master-bg-wrapper">
+                        <div class="shop-bg-particles">
+                            <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                            <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                            <span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span><span class="sp-spark"></span>
+                        </div>
+                        <div class="master-shimmer-sweep"></div>
+                        <div class="cosmic-orbit-ring"></div>
+                    </div>
+                `;
             }
             
             row.innerHTML = `
@@ -757,7 +814,10 @@ let compGame = {
     oppScore: 0,
     oppDetails: null,
     matchId: null,
-    isP1: false
+    isP1: false,
+    correctStreak: 0,
+    lastCorrectCount: 0,
+    lastIncorrectCount: 0
 };
 
 function startRankedMatchmaking(mode) {
@@ -975,6 +1035,24 @@ function handleSocketMatchEnd(data) {
         `;
     }
     
+    const rematchBtn = document.getElementById('result-rematch-btn');
+    if (rematchBtn) {
+        if (data.isDoubleOrNothing) {
+            rematchBtn.style.display = 'none';
+        } else {
+            rematchBtn.style.display = 'block';
+            rematchBtn.onclick = () => {
+                const modalResult = document.getElementById('modal-result');
+                if (modalResult) modalResult.classList.remove('active');
+                
+                socket.emit('rematch_double_or_nothing', {
+                    matchId: data.matchId,
+                    eloChange: data.eloChange
+                });
+            };
+        }
+    }
+    
     const modalResult = document.getElementById('modal-result');
     if (modalResult) modalResult.classList.add('active');
     
@@ -1128,6 +1206,40 @@ function onDragEnd() {
     switchTab(targetTab, closestIndex);
 }
 
+// ==================== COMBO EFFECTS HELPER ====================
+function triggerComboEffect(streak) {
+    if (streak < 2) return;
+    
+    const playArea = document.getElementById('comp-battle-panel');
+    if (!playArea) return;
+    
+    // Remove existing combo badge if any
+    const existing = playArea.querySelector('.combo-floating-badge');
+    if (existing) existing.remove();
+    
+    const badge = document.createElement('div');
+    badge.className = 'combo-floating-badge';
+    
+    if (streak === 2) {
+        badge.innerHTML = `<span class="combo-title">🔥 DOUBLE COMBO!</span><span class="combo-sub">x2 Streak</span>`;
+        badge.classList.add('c-double');
+    } else {
+        badge.innerHTML = `<span class="combo-title">⚡ BRAIN ON FIRE! ⚡</span><span class="combo-sub">x${streak} Streak</span>`;
+        badge.classList.add('c-triple');
+        
+        // Add screen shake effect
+        playArea.classList.add('screen-shake');
+        setTimeout(() => playArea.classList.remove('screen-shake'), 500);
+    }
+    
+    playArea.appendChild(badge);
+    
+    // Auto remove after animation ends
+    setTimeout(() => {
+        if (badge.parentNode) badge.remove();
+    }, 1500);
+}
+
 // ==================== WEBSOCKET INTEGRATION ====================
 function initSocket(token) {
     if (socket) return;
@@ -1144,6 +1256,9 @@ function initSocket(token) {
     });
     
     socket.on('match_start', (data) => {
+        compGame.correctStreak = 0;
+        compGame.lastCorrectCount = 0;
+        compGame.lastIncorrectCount = 0;
         handleSocketMatchStart(data);
     });
     
@@ -1159,6 +1274,16 @@ function initSocket(token) {
         const oppScore = compGame.isP1 ? data.p2Score : data.p1Score;
         const oppCorrect = compGame.isP1 ? data.p2Correct : data.p1Correct;
         const oppIncorrect = compGame.isP1 ? data.p2Incorrect : data.p1Incorrect;
+        
+        // Check local correct answer streak
+        if (myCorrect > (compGame.lastCorrectCount || 0)) {
+            compGame.correctStreak++;
+            triggerComboEffect(compGame.correctStreak);
+        } else if (myIncorrect > (compGame.lastIncorrectCount || 0)) {
+            compGame.correctStreak = 0;
+        }
+        compGame.lastCorrectCount = myCorrect || 0;
+        compGame.lastIncorrectCount = myIncorrect || 0;
         
         compGame.userScore = myScore;
         compGame.oppScore = oppScore;
@@ -1514,11 +1639,102 @@ function bindAllTriggers() {
     }
 }
 
+// ==================== ONBOARDING FLOW ====================
+let onboardingCurrentSlide = 0;
+let onboardingSurveyChoice = null;
+
+function setupOnboardingListeners() {
+    const onboardingOverlay = document.getElementById('onboarding-overlay');
+    if (!onboardingOverlay) return;
+
+    // Survey option selection
+    const surveyOptions = onboardingOverlay.querySelectorAll('.survey-option-btn');
+    surveyOptions.forEach(btn => {
+        btn.onclick = () => {
+            surveyOptions.forEach(opt => opt.classList.remove('selected'));
+            btn.classList.add('selected');
+            onboardingSurveyChoice = btn.getAttribute('data-choice');
+        };
+    });
+
+    const slides = onboardingOverlay.querySelectorAll('.onboarding-slide');
+    const dots = onboardingOverlay.querySelectorAll('.onboarding-dots .dot');
+    const nextBtn = document.getElementById('onboarding-next-btn');
+    const skipBtn = document.getElementById('onboarding-skip-btn');
+
+    function showSlide(index) {
+        slides.forEach((slide, idx) => {
+            if (idx === index) {
+                slide.classList.add('active');
+            } else {
+                slide.classList.remove('active');
+            }
+        });
+
+        dots.forEach((dot, idx) => {
+            if (idx === index) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+
+        onboardingCurrentSlide = index;
+
+        // Change button text on the last slide
+        if (nextBtn) {
+            if (index === slides.length - 1) {
+                nextBtn.textContent = 'Enter Arena';
+            } else {
+                nextBtn.textContent = 'Next';
+            }
+        }
+    }
+
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            // Slide 1 is the survey slide
+            if (onboardingCurrentSlide === 1 && !onboardingSurveyChoice) {
+                alert('Please select an option to continue!');
+                return;
+            }
+
+            if (onboardingCurrentSlide < slides.length - 1) {
+                showSlide(onboardingCurrentSlide + 1);
+            } else {
+                completeOnboarding();
+            }
+        };
+    }
+
+    if (skipBtn) {
+        skipBtn.onclick = () => {
+            completeOnboarding();
+        };
+    }
+
+    function completeOnboarding() {
+        localStorage.setItem('coreduel_onboarding_completed', 'true');
+        if (onboardingSurveyChoice) {
+            localStorage.setItem('coreduel_onboarding_survey', onboardingSurveyChoice);
+        }
+        onboardingOverlay.classList.remove('active');
+        
+        // After onboarding completes, show auth if not logged in
+        const savedToken = localStorage.getItem('coreduel_jwt_token');
+        const authOverlay = document.getElementById('auth-overlay');
+        if (!savedToken && authOverlay) {
+            authOverlay.classList.add('active');
+        }
+    }
+}
+
 // ==================== APP INITIALIZATION ====================
 function init() {
     modalProfile = document.getElementById('modal-profile');
     modalStreak = document.getElementById('modal-streak');
     modalSettings = document.getElementById('modal-settings');
+    setupOnboardingListeners();
     loadState();
     bindAllTriggers();
     setupSwipeGestures();

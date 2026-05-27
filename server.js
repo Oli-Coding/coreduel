@@ -9,8 +9,8 @@ const path = require('path');
 const JWT_SECRET = 'coreduel_ultra_secret_key_1337';
 const PORT = process.env.PORT || 8000;
 
-// Initialize Database
-const dbPath = path.join(__dirname, 'database.sqlite');
+// Initialize Database — use persistent disk path on Render, local otherwise
+const dbPath = process.env.DATABASE_URL || path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening SQLite database:', err.message);
@@ -242,6 +242,7 @@ let queues = {
 };
 
 let activeMatches = {};
+let closedMatches = {};
 
 // Simpler IQ questions to make playing enjoyable
 const IQ_QUESTIONS = [
@@ -422,6 +423,7 @@ io.on('connection', (socket) => {
             if (match.ended) return;
             if (totalQuestions >= 10) {
                 player.finished = true;
+                player.finishedTime = Date.now();
                 socket.emit('player_finished');
                 
                 if (match.p1.finished && match.p2.finished) {
@@ -447,6 +449,41 @@ io.on('connection', (socket) => {
         if (!match) return;
         const isP1 = (match.p1.socketId === socket.id);
         endMatch(match, isP1 ? 'p2' : 'p1', true);
+    });
+
+    socket.on('rematch_double_or_nothing', (data) => {
+        const prevMatch = closedMatches[data.matchId];
+        if (!prevMatch) return;
+        
+        const isP1 = (prevMatch.p1.socketId === socket.id);
+        const me = isP1 ? prevMatch.p1 : prevMatch.p2;
+        const opp = isP1 ? prevMatch.p2 : prevMatch.p1;
+        
+        const p1Clean = {
+            id: me.id,
+            socketId: me.socketId,
+            name: me.name,
+            elo: me.elo,
+            frame: me.frame,
+            title: me.title,
+            avatarSeed: me.avatarSeed
+        };
+        
+        const p2Clean = {
+            id: opp.id,
+            socketId: opp.socketId,
+            name: opp.name,
+            elo: opp.elo,
+            frame: opp.frame,
+            title: opp.title,
+            avatarSeed: opp.avatarSeed,
+            solveSpeedRange: opp.solveSpeedRange,
+            accuracy: opp.accuracy
+        };
+        
+        const newMatch = startMatch(prevMatch.mode, p1Clean, p2Clean, prevMatch.isBot);
+        newMatch.isDoubleOrNothing = true;
+        newMatch.parentEloChange = data.eloChange;
     });
     
     socket.on('disconnect', () => {
@@ -610,6 +647,7 @@ function triggerBotSolver(match) {
             if (match.ended) return;
             if (totalAnswered >= 10) {
                 bot.finished = true;
+                bot.finishedTime = Date.now();
                 if (match.p1.finished) {
                     determineWinnerAndEndMatch(match);
                 }
@@ -623,14 +661,35 @@ function triggerBotSolver(match) {
 
 function determineWinnerAndEndMatch(match) {
     let winnerKey = 'draw';
-    if (match.p1.score > match.p2.score) winnerKey = 'p1';
-    else if (match.p2.score > match.p1.score) winnerKey = 'p2';
+    if (match.p1.score > match.p2.score) {
+        winnerKey = 'p1';
+    } else if (match.p2.score > match.p1.score) {
+        winnerKey = 'p2';
+    } else {
+        // Tied score! Decide by speed (faster finishedTime wins)
+        if (match.p1.finished && match.p2.finished) {
+            const p1Time = match.p1.finishedTime || Infinity;
+            const p2Time = match.p2.finishedTime || Infinity;
+            if (p1Time < p2Time) {
+                winnerKey = 'p1';
+            } else if (p2Time < p1Time) {
+                winnerKey = 'p2';
+            }
+        } else if (match.p1.finished) {
+            winnerKey = 'p1';
+        } else if (match.p2.finished) {
+            winnerKey = 'p2';
+        }
+    }
     endMatch(match, winnerKey);
 }
 
 function endMatch(match, winnerKey, earlyExit = false) {
     if (match.ended) return;
     match.ended = true;
+    
+    // Save to closedMatches
+    closedMatches[match.id] = match;
     
     if (match.botTimerId) clearTimeout(match.botTimerId);
     if (match.matchTimerId) clearTimeout(match.matchTimerId);
@@ -666,8 +725,29 @@ function endMatch(match, winnerKey, earlyExit = false) {
     const p1Result = isDraw ? 'draw' : (p1Winner ? 'win' : 'lose');
     const p2Result = isDraw ? 'draw' : (!p1Winner ? 'win' : 'lose');
     
-    const p1EloChange = calculateEloChange(match.p1.elo, p1Result);
-    const p2EloChange = calculateEloChange(match.p2.elo, p2Result);
+    let p1EloChange = calculateEloChange(match.p1.elo, p1Result);
+    let p2EloChange = calculateEloChange(match.p2.elo, p2Result);
+    
+    if (match.isDoubleOrNothing) {
+        const p1Parent = match.parentEloChange || 0;
+        if (p1Result === 'win') {
+            p1EloChange = p1Parent > 0 ? p1Parent : Math.abs(p1Parent);
+        } else if (p1Result === 'lose') {
+            p1EloChange = p1Parent > 0 ? -p1Parent : p1Parent;
+        } else {
+            p1EloChange = 0;
+        }
+        
+        // Simulating the bot's ELO shift
+        const p2Parent = -p1Parent;
+        if (p2Result === 'win') {
+            p2EloChange = p2Parent > 0 ? p2Parent : Math.abs(p2Parent);
+        } else if (p2Result === 'lose') {
+            p2EloChange = p2Parent > 0 ? -p2Parent : p2Parent;
+        } else {
+            p2EloChange = 0;
+        }
+    }
     
     // Fixed game rewards: 50 coins and 100 xp
     const coinsGained = 50;
@@ -686,21 +766,25 @@ function endMatch(match, winnerKey, earlyExit = false) {
     
     if (p1Socket) {
         p1Socket.emit('match_end', {
+            matchId: match.id,
             result: isDraw ? 'Draw' : (p1Winner ? 'Victory' : 'Defeat'),
             opponentName: match.p2.name,
             eloChange: p1EloChange,
             coinsGained,
-            xpGained
+            xpGained,
+            isDoubleOrNothing: !!match.isDoubleOrNothing
         });
     }
     
     if (p2Socket && !match.isBot) {
         p2Socket.emit('match_end', {
+            matchId: match.id,
             result: isDraw ? 'Draw' : (!p1Winner ? 'Victory' : 'Defeat'),
             opponentName: match.p1.name,
             eloChange: p2EloChange,
             coinsGained,
-            xpGained
+            xpGained,
+            isDoubleOrNothing: !!match.isDoubleOrNothing
         });
     }
     
