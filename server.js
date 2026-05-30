@@ -602,6 +602,9 @@ function startMatch(mode, p1, p2, isBot = false) {
     
     if (mode === 'iq') {
         match.currentIqQuestion = generateQuestion('iq', 1);
+        if (isBot) {
+            match.botFailSequenceLength = Math.floor(Math.random() * 4) + 6; // Fail randomly between 6 and 9 sequence length
+        }
     }
     
     activeMatches[matchId] = match;
@@ -763,11 +766,22 @@ function triggerBotIqSolver(match) {
         if (match.ended || bot.failed || bot.completed) return;
         
         let currentClickIndex = 0;
+        const failLength = match.botFailSequenceLength || 6;
         
         function doBotClick() {
             if (match.ended || bot.failed || bot.completed) return;
             
-            const isCorrect = Math.random() < (bot.accuracy || 0.85);
+            let isCorrect = true;
+            if (seqLen >= failLength) {
+                if (match.botFailClickIndex === undefined) {
+                    // Decide a random step in the round to fail (could be first step, last step, or middle)
+                    match.botFailClickIndex = Math.floor(Math.random() * seqLen);
+                }
+                if (currentClickIndex === match.botFailClickIndex) {
+                    isCorrect = false;
+                }
+            }
+            
             if (isCorrect) {
                 currentClickIndex++;
                 bot.progress = currentClickIndex;
@@ -821,10 +835,10 @@ function checkIqRoundOver(match) {
             setTimeout(() => {
                 determineWinnerAndEndMatch(match);
             }, 1000);
-        } else {
             // Both succeeded! Advance to next round.
             match.roundNumber++;
             match.currentIqQuestion = generateQuestion('iq', match.roundNumber);
+            match.botFailClickIndex = undefined;
             
             match.p1.progress = 0; match.p1.failed = false; match.p1.completed = false;
             match.p2.progress = 0; match.p2.failed = false; match.p2.completed = false;
