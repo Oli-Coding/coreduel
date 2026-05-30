@@ -219,7 +219,7 @@ app.post('/api/user/profile', authenticateToken, (req, res) => {
 // Leaderboard API
 app.get('/api/leaderboard', (req, res) => {
     const mode = req.query.mode || 'global';
-    let query = 'SELECT name, elo, streak, equipped_title as title, equipped_frame as frame, equipped_background as background, avatar_seed as avatarSeed, math_best as mathBest, iq_best as iqBest FROM users ';
+    let query = 'SELECT name, elo, streak, equipped_title as title, equipped_frame as frame, equipped_background as background, avatar_seed as avatarSeed, math_best as mathBest, iq_best as iqBest, premium FROM users ';
     if (mode === 'math') {
         query += 'ORDER BY math_best DESC, elo DESC LIMIT 20';
     } else if (mode === 'iq') {

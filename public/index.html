@@ -247,6 +247,18 @@
                     </div>
                 </div>
 
+                <!-- Simulated Ad Banner (Hidden if Ultimate Premium active) -->
+                <div class="simulated-ad-container" id="simulated-ad-banner">
+                    <div class="simulated-ad-content">
+                        <span class="ad-icon">💎</span>
+                        <div class="simulated-ad-info">
+                            <h5>Unlock Premium Pass Now!</h5>
+                            <p>Tired of Ads? Get the Ultimate Deal to remove all ads instantly!</p>
+                        </div>
+                    </div>
+                    <button class="simulated-ad-action-btn" onclick="switchTab('premium', 2)">GO VIP</button>
+                </div>
+
                 <!-- Duels Area -->
                 <div>
                     <h2 class="section-title">Select Arena</h2>
@@ -393,41 +405,55 @@
 
             <!-- PREMIUM DETAIL SPA VIEW -->
             <div id="page-premium" class="page-view">
-                <div class="premium-splash-header" style="text-align:center; padding: 20px 10px;">
-                    <div class="versus-player-avatar" style="width: 80px; height: 80px; margin: 0 auto 12px auto; border-color: #facc15; box-shadow: 0 0 15px rgba(250,204,21,0.4);">
-                        <svg viewBox="0 0 24 24" style="fill:#facc15; width:100%; height:100%;"><path d="M12 2L1 21h22L12 2zm0 4l7.5 13h-15L12 6z"/></svg>
+                <div class="premium-splash-header" style="text-align:center; padding: 20px 10px 5px 10px;">
+                    <div class="versus-player-avatar" style="width: 70px; height: 70px; margin: 0 auto 10px auto; border-color: #a78bfa; box-shadow: 0 0 15px rgba(139,92,246,0.3);">
+                        <svg viewBox="0 0 24 24" style="fill:#a78bfa; width:100%; height:100%;"><path d="M12 2L1 21h22L12 2zm0 4l7.5 13h-15L12 6z"/></svg>
                     </div>
-                    <h2 style="font-size:24px; font-weight:900; background:linear-gradient(90deg, #facc15, #ca8a04); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.5px;">CoreDuel Premium</h2>
-                    <p style="font-size:12px; color:var(--color-text-secondary); max-width:280px; margin: 6px auto 0 auto; line-height:1.5;">Unlock exclusive perks, premium customizable pass rewards, and show off your golden status!</p>
+                    <h2 style="font-size:24px; font-weight:900; background:linear-gradient(90deg, #a78bfa, #f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.5px; margin:0;">CoreDuel Upgrade</h2>
+                    <p style="font-size:12px; color:var(--color-text-secondary); max-width:320px; margin: 4px auto 0 auto; line-height:1.4;">Unleash the ultimate power, claim elite cosmetics, and power up your progression path!</p>
                 </div>
 
-                <div class="premium-perks-list" style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
-                    <div style="display:flex; align-items:center; gap:12px; background:rgba(250, 204, 21, 0.05); border:1px solid rgba(250, 204, 21, 0.1); border-radius:12px; padding:12px 16px;">
-                        <span style="font-size:20px;">⭐</span>
-                        <div style="text-align:left;">
-                            <h4 style="font-size:13px; font-weight:800; color:#facc15; margin:0;">Premium Pass Claims</h4>
-                            <p style="font-size:11px; color:var(--color-text-secondary); margin:2px 0 0 0;">Unlock the bottom Premium tier on the CorePass for double payouts.</p>
+                <div class="premium-upgrade-container">
+                    <!-- Option A: Boring Lite Pass -->
+                    <div class="premium-card-lite" id="prem-card-lite">
+                        <div>
+                            <div class="card-title">Gold Pass</div>
+                            <div class="price-tag">4.99 €</div>
+                            <ul class="perks-list">
+                                <li><span>⭐</span> Premium Pass Claims</li>
+                                <li><span>💰</span> +100 Coins Daily Bonus</li>
+                                <li><span>🔥</span> +100 XP Daily Boost</li>
+                                <li><span>🏷️</span> Exclusive "Elite Duelist" Title</li>
+                            </ul>
                         </div>
+                        <button class="buy-btn" id="buy-premium-lite-btn">Activate Pass</button>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255, 255, 255, 0.05); border-radius:12px; padding:12px 16px;">
-                        <span style="font-size:20px;">🔥</span>
-                        <div style="text-align:left;">
-                            <h4 style="font-size:13px; font-weight:800; margin:0;">Flame Profile Aura</h4>
-                            <p style="font-size:11px; color:var(--color-text-secondary); margin:2px 0 0 0;">A shiny golden indicator on your profile page and leaderboard rows.</p>
+
+                    <!-- Option B: Ultimate Cosmic Deal -->
+                    <div class="premium-card-cosmic" id="prem-card-cosmic">
+                        <div class="best-value-badge">BEST VALUE</div>
+                        <div class="cosmic-card-stars">
+                            <span style="top:20%; left:15%; animation-delay: 0.1s;"></span>
+                            <span style="top:40%; left:80%; animation-delay: 0.7s;"></span>
+                            <span style="top:75%; left:30%; animation-delay: 0.4s;"></span>
+                            <span style="top:15%; left:65%; animation-delay: 1.2s;"></span>
                         </div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:12px; background:rgba(255, 255, 255, 0.02); border:1px solid rgba(255, 255, 255, 0.05); border-radius:12px; padding:12px 16px;">
-                        <span style="font-size:20px;">💰</span>
-                        <div style="text-align:left;">
-                            <h4 style="font-size:13px; font-weight:800; margin:0;">Free Username Changes</h4>
-                            <p style="font-size:11px; color:var(--color-text-secondary); margin:2px 0 0 0;">Change your display name at settings whenever you want without the 1k coins fee.</p>
+                        <div>
+                            <div class="card-title">Ultimate Cosmic Deal</div>
+                            <div class="price-tag"><span class="strike">29.99 €</span> 5.99 €</div>
+                            <ul class="perks-list">
+                                <li><span>✨</span> <strong>All Gold Pass Rewards</strong></li>
+                                <li><span>🚀</span> <strong>NO ADS</strong> (Clean Layout)</li>
+                                <li><span>🌌</span> <strong>Master Background</strong> (Glow/Particles)</li>
+                                <li><span>👑</span> <strong>"Cosmic Grandmaster"</strong> Exclusive Title</li>
+                                <li><span>🪐</span> <strong>"Cosmic Glow"</strong> Glowing Avatar Frame</li>
+                                <li><span>✨</span> <strong>VIP Golden Name Shimmer</strong></li>
+                                <li><span>🪙</span> <strong>+2,000 Coins</strong> Instant Cash!</li>
+                            </ul>
                         </div>
+                        <button class="buy-btn-cosmic" id="buy-premium-cosmic-btn">UNLOCK COSMIC DEAL</button>
                     </div>
                 </div>
-
-                <button class="result-btn" id="buy-premium-action-btn" style="background:linear-gradient(90deg, #facc15, #eab308); color:#000; font-weight:900; width:100%; border:none; margin-top:20px; box-shadow: 0 0 15px rgba(250,204,21,0.3);">
-                    Activate Premium (Simulated)
-                </button>
             </div>
 
             <!-- PASS VIEW -->

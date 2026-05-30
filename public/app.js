@@ -237,7 +237,14 @@ function updateUI() {
     safeText('profile-stat-elo', `${userState.elo} Elo`);
     
     const usernameEl = document.getElementById('profile-player-username');
-    if (usernameEl) usernameEl.textContent = userState.name;
+    if (usernameEl) {
+        usernameEl.textContent = userState.name;
+        if (userState.premium === 2) {
+            usernameEl.classList.add('vip-shimmer');
+        } else {
+            usernameEl.classList.remove('vip-shimmer');
+        }
+    }
     
     const seedInput = document.getElementById('settings-username-input');
     if (seedInput) seedInput.value = userState.name;
@@ -251,11 +258,69 @@ function updateUI() {
     const premBadge = document.getElementById('pass-premium-status');
     if (premBadge) {
         if (userState.premium === 1) {
-            premBadge.textContent = "Premium Active";
+            premBadge.textContent = "Gold Pass";
             premBadge.style.background = "linear-gradient(90deg, #facc15, #fbbf24)";
+        } else if (userState.premium === 2) {
+            premBadge.textContent = "Ultimate Active";
+            premBadge.style.background = "linear-gradient(90deg, #8b5cf6, #ec4899, #facc15)";
         } else {
             premBadge.textContent = "Get Premium";
             premBadge.style.background = "#facc15";
+        }
+    }
+
+    // Toggle Simulated Ad Banner based on premium status (Ultimate Deal = Ad-free)
+    const adBanner = document.getElementById('simulated-ad-banner');
+    if (adBanner) {
+        if (userState.premium === 2) {
+            adBanner.style.display = 'none';
+        } else {
+            adBanner.style.display = 'flex';
+        }
+    }
+
+    // Update Premium Tab Option Cards Active States
+    const buyLiteBtn = document.getElementById('buy-premium-lite-btn');
+    const buyCosmicBtn = document.getElementById('buy-premium-cosmic-btn');
+    const cardLite = document.getElementById('prem-card-lite');
+    const cardCosmic = document.getElementById('prem-card-cosmic');
+
+    if (buyLiteBtn && cardLite) {
+        if (userState.premium === 1) {
+            buyLiteBtn.textContent = "Active";
+            buyLiteBtn.disabled = true;
+            buyLiteBtn.style.opacity = '0.6';
+            cardLite.style.opacity = '0.9';
+        } else if (userState.premium === 2) {
+            buyLiteBtn.textContent = "Pass Unlocked";
+            buyLiteBtn.disabled = true;
+            buyLiteBtn.style.opacity = '0.4';
+            cardLite.style.opacity = '0.5';
+        } else {
+            buyLiteBtn.textContent = "Activate Pass";
+            buyLiteBtn.disabled = false;
+            buyLiteBtn.style.opacity = '1';
+            cardLite.style.opacity = '0.75';
+        }
+    }
+
+    if (buyCosmicBtn && cardCosmic) {
+        if (userState.premium === 2) {
+            buyCosmicBtn.textContent = "ACTIVE";
+            buyCosmicBtn.disabled = true;
+            buyCosmicBtn.style.background = '#475569';
+            buyCosmicBtn.style.animation = 'none';
+            buyCosmicBtn.style.boxShadow = 'none';
+            cardCosmic.style.border = '2px solid #475569';
+            cardCosmic.style.transform = 'none';
+        } else {
+            buyCosmicBtn.textContent = "UNLOCK COSMIC DEAL";
+            buyCosmicBtn.disabled = false;
+            // Background is defined in CSS, so just make sure style overrides are reset
+            buyCosmicBtn.style.background = '';
+            buyCosmicBtn.style.animation = '';
+            buyCosmicBtn.style.boxShadow = '';
+            cardCosmic.style.border = '';
         }
     }
 }
@@ -398,7 +463,7 @@ function renderLeaderboardItem(container, player, i) {
                 <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${player.avatarSeed || player.name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" alt="Avatar">
             </div>
             <div class="leaderboard-name-container">
-                <span class="leaderboard-name">${player.name}</span>
+                <span class="leaderboard-name ${player.premium === 2 ? 'vip-shimmer' : ''}">${player.name}</span>
                 <span class="leaderboard-title-badge" style="display:flex; flex-direction:column; gap:2px; align-items:flex-start;">
                     <span>${player.title || 'Novice Dueler'}</span>
                     <span class="rank-badge ${rankBadgeInfo.css}" style="font-size:7px; padding:1px 4px; margin-top:2px;">${rankBadgeInfo.name}</span>
@@ -1571,15 +1636,53 @@ function bindAllTriggers() {
     if (googleBtn) googleBtn.onclick = () => simulateSocialLogin("Google");
     if (appleBtn) appleBtn.onclick = () => simulateSocialLogin("Apple");
     
-    // Purchase premium simulated button
-    const buyPremiumBtn = document.getElementById('buy-premium-action-btn');
-    if (buyPremiumBtn) {
-        buyPremiumBtn.onclick = () => {
+    // Purchase premium simulated buttons
+    const buyPremiumLiteBtn = document.getElementById('buy-premium-lite-btn');
+    if (buyPremiumLiteBtn) {
+        buyPremiumLiteBtn.onclick = () => {
             userState.premium = 1;
+            if (!userState.inventory.includes('Elite Duelist')) {
+                userState.inventory.push('Elite Duelist');
+            }
+            userState.equippedTitle = 'Elite Duelist';
             updateUI();
             renderPass();
             saveState();
-            alert("Premium Activated! Enjoy exclusive rewards and VIP highlights!");
+            alert("Gold Pass Activated! Enjoy +100 daily coins, +100 daily XP, and the 'Elite Duelist' title!");
+        };
+    }
+
+    const buyPremiumCosmicBtn = document.getElementById('buy-premium-cosmic-btn');
+    if (buyPremiumCosmicBtn) {
+        buyPremiumCosmicBtn.onclick = () => {
+            // Upgrade to Premium 2 (Ultimate Cosmic Deal)
+            userState.premium = 2;
+            
+            // Add +2,000 Coins instantly
+            userState.coins += 2000;
+            
+            // Give Master Background
+            if (!userState.inventory.includes('bg-master')) {
+                userState.inventory.push('bg-master');
+            }
+            userState.equippedBackground = 'bg-master';
+            
+            // Give Cosmic Grandmaster Title
+            if (!userState.inventory.includes('Cosmic Grandmaster')) {
+                userState.inventory.push('Cosmic Grandmaster');
+            }
+            userState.equippedTitle = 'Cosmic Grandmaster';
+            
+            // Give Cosmic Glow Frame
+            if (!userState.inventory.includes('frame-cosmic')) {
+                userState.inventory.push('frame-cosmic');
+            }
+            userState.equippedFrame = 'frame-cosmic';
+            
+            updateUI();
+            renderPass();
+            saveState();
+            alert("ULTIMATE COSMIC DEAL UNLOCKED! 🌌 Enjoy permanent Ad-free, instant 2,000 coins, the Master Background, 'Cosmic Grandmaster' title, and the spinning 'Cosmic Glow' avatar frame!");
         };
     }
     
