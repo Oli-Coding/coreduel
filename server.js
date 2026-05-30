@@ -259,7 +259,7 @@ const IQ_QUESTIONS = [
 ];
 
 // Easy math generators
-function generateQuestion(mode) {
+function generateQuestion(mode, roundNumber = 1) {
     if (mode === 'math') {
         const op = ['+', '-', '*'][Math.floor(Math.random() * 3)];
         let num1, num2, correctAns, questionText;
@@ -294,11 +294,15 @@ function generateQuestion(mode) {
             choices: Array.from(choices).sort(() => Math.random() - 0.5)
         };
     } else {
-        const qObj = IQ_QUESTIONS[Math.floor(Math.random() * IQ_QUESTIONS.length)];
+        // IQ grid memory sequence of indices from 0 to 8
+        const len = Math.min(9, roundNumber + 2);
+        const indices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        const shuffled = indices.sort(() => Math.random() - 0.5);
+        const seq = shuffled.slice(0, len);
         return {
-            q: qObj.q,
-            a: qObj.a,
-            choices: qObj.choices
+            isIqGrid: true,
+            sequence: seq,
+            round: roundNumber
         };
     }
 }
@@ -439,6 +443,30 @@ io.on('connection', (socket) => {
         }, delay);
     });
 
+    socket.on('iq_submit_progress', (data) => {
+        const { matchId, progress, failed, completed } = data;
+        const match = activeMatches[matchId];
+        if (!match || match.ended) return;
+        
+        const isP1 = (match.p1.socketId === socket.id);
+        const player = isP1 ? match.p1 : match.p2;
+        
+        player.progress = progress;
+        player.failed = failed;
+        player.completed = completed;
+        
+        io.to(match.id).emit('iq_progress_update', {
+            p1Progress: match.p1.progress,
+            p1Failed: match.p1.failed,
+            p1Completed: match.p1.completed,
+            p2Progress: match.p2.progress,
+            p2Failed: match.p2.failed,
+            p2Completed: match.p2.completed
+        });
+        
+        checkIqRoundOver(match);
+    });
+
     socket.on('cancel_queue', () => {
         leaveAllQueues(socket);
     });
@@ -565,11 +593,16 @@ function startMatch(mode, p1, p2, isBot = false) {
         id: matchId,
         mode: mode,
         isBot: isBot,
-        p1: { ...p1, score: 0, correct: 0, incorrect: 0, finished: false, currentQuestion: null },
-        p2: { ...p2, score: 0, correct: 0, incorrect: 0, finished: false, currentQuestion: null },
+        p1: { ...p1, score: 0, correct: 0, incorrect: 0, finished: false, currentQuestion: null, progress: 0, failed: false, completed: false },
+        p2: { ...p2, score: 0, correct: 0, incorrect: 0, finished: false, currentQuestion: null, progress: 0, failed: false, completed: false },
         botTimerId: null,
-        ended: false
+        ended: false,
+        roundNumber: 1
     };
+    
+    if (mode === 'iq') {
+        match.currentIqQuestion = generateQuestion('iq', 1);
+    }
     
     activeMatches[matchId] = match;
     
@@ -579,35 +612,62 @@ function startMatch(mode, p1, p2, isBot = false) {
         p2: { name: p2.name, elo: p2.elo, frame: p2.frame, title: p2.title, avatarSeed: p2.avatarSeed }
     });
     
-    // Server safety timer - match ends automatically in 36 seconds
-    match.matchTimerId = setTimeout(() => {
-        if (!match.ended) {
-            determineWinnerAndEndMatch(match);
-        }
-    }, 36000);
+    // Server safety timer
+    if (mode === 'math') {
+        match.matchTimerId = setTimeout(() => {
+            if (!match.ended) {
+                determineWinnerAndEndMatch(match);
+            }
+        }, 36000);
+    } else {
+        startIqRoundSafetyTimer(match);
+    }
     
     setTimeout(() => {
         if (match.ended) return;
         
-        match.p1.currentQuestion = generateQuestion(mode);
-        match.p2.currentQuestion = generateQuestion(mode);
-        
-        if (p1Socket) {
-            p1Socket.emit('match_start', {
-                q: match.p1.currentQuestion.q,
-                choices: match.p1.currentQuestion.choices
-            });
-        }
-        
-        if (!isBot && p2Socket) {
-            p2Socket.emit('match_start', {
-                q: match.p2.currentQuestion.q,
-                choices: match.p2.currentQuestion.choices
-            });
-        }
-        
-        if (isBot) {
-            triggerBotSolver(match);
+        if (mode === 'math') {
+            match.p1.currentQuestion = generateQuestion(mode);
+            match.p2.currentQuestion = generateQuestion(mode);
+            
+            if (p1Socket) {
+                p1Socket.emit('match_start', {
+                    q: match.p1.currentQuestion.q,
+                    choices: match.p1.currentQuestion.choices
+                });
+            }
+            
+            if (!isBot && p2Socket) {
+                p2Socket.emit('match_start', {
+                    q: match.p2.currentQuestion.q,
+                    choices: match.p2.currentQuestion.choices
+                });
+            }
+            
+            if (isBot) {
+                triggerBotSolver(match);
+            }
+        } else {
+            // IQ grid sequence match start
+            if (p1Socket) {
+                p1Socket.emit('match_start', {
+                    isIqGrid: true,
+                    sequence: match.currentIqQuestion.sequence,
+                    round: 1
+                });
+            }
+            
+            if (!isBot && p2Socket) {
+                p2Socket.emit('match_start', {
+                    isIqGrid: true,
+                    sequence: match.currentIqQuestion.sequence,
+                    round: 1
+                });
+            }
+            
+            if (isBot) {
+                triggerBotIqSolver(match);
+            }
         }
     }, 3800);
 }
@@ -657,6 +717,137 @@ function triggerBotSolver(match) {
             }
         }, delayNext);
     }, delay);
+}
+
+function startIqRoundSafetyTimer(match) {
+    if (match.matchTimerId) clearTimeout(match.matchTimerId);
+    
+    const seqLen = match.currentIqQuestion.sequence.length;
+    const timeLimitMs = (seqLen * 2000) + 2500; // 2s per tile + 2.5s memorization padding
+    
+    match.matchTimerId = setTimeout(() => {
+        if (match.ended) return;
+        
+        let updated = false;
+        if (!match.p1.completed && !match.p1.failed) {
+            match.p1.failed = true;
+            updated = true;
+        }
+        if (!match.p2.completed && !match.p2.failed) {
+            match.p2.failed = true;
+            updated = true;
+        }
+        
+        if (updated) {
+            io.to(match.id).emit('iq_progress_update', {
+                p1Progress: match.p1.progress,
+                p1Failed: match.p1.failed,
+                p1Completed: match.p1.completed,
+                p2Progress: match.p2.progress,
+                p2Failed: match.p2.failed,
+                p2Completed: match.p2.completed
+            });
+            checkIqRoundOver(match);
+        }
+    }, timeLimitMs);
+}
+
+function triggerBotIqSolver(match) {
+    if (match.ended || match.p2.failed || match.p2.completed) return;
+    
+    const bot = match.p2;
+    const seqLen = match.currentIqQuestion.sequence.length;
+    
+    // Memorization phase is 1.5s. Add 300ms reaction delay.
+    setTimeout(() => {
+        if (match.ended || bot.failed || bot.completed) return;
+        
+        let currentClickIndex = 0;
+        
+        function doBotClick() {
+            if (match.ended || bot.failed || bot.completed) return;
+            
+            const isCorrect = Math.random() < (bot.accuracy || 0.85);
+            if (isCorrect) {
+                currentClickIndex++;
+                bot.progress = currentClickIndex;
+                if (currentClickIndex === seqLen) {
+                    bot.completed = true;
+                }
+            } else {
+                bot.failed = true;
+            }
+            
+            io.to(match.id).emit('iq_progress_update', {
+                p1Progress: match.p1.progress,
+                p1Failed: match.p1.failed,
+                p1Completed: match.p1.completed,
+                p2Progress: match.p2.progress,
+                p2Failed: match.p2.failed,
+                p2Completed: match.p2.completed
+            });
+            
+            checkIqRoundOver(match);
+            
+            if (!bot.failed && !bot.completed) {
+                const minSpeed = bot.solveSpeedRange[0];
+                const maxSpeed = bot.solveSpeedRange[1];
+                const delay = Math.floor(Math.random() * (maxSpeed - minSpeed)) + minSpeed;
+                match.botTimerId = setTimeout(doBotClick, delay);
+            }
+        }
+        
+        doBotClick();
+    }, 1800);
+}
+
+function checkIqRoundOver(match) {
+    if (match.ended) return;
+    
+    const p1Done = match.p1.failed || match.p1.completed;
+    const p2Done = match.p2.failed || match.p2.completed;
+    
+    if (p1Done && p2Done) {
+        // Both finished current round. Check if one/both failed.
+        const p1Failed = match.p1.failed;
+        const p2Failed = match.p2.failed;
+        
+        if (p1Failed || p2Failed) {
+            // Match is over! Someone failed.
+            // Setup scores so determineWinner works (higher score wins)
+            match.p1.score = match.p1.completed ? match.roundNumber : match.p1.progress;
+            match.p2.score = match.p2.completed ? match.roundNumber : match.p2.progress;
+            
+            setTimeout(() => {
+                determineWinnerAndEndMatch(match);
+            }, 1000);
+        } else {
+            // Both succeeded! Advance to next round.
+            match.roundNumber++;
+            match.currentIqQuestion = generateQuestion('iq', match.roundNumber);
+            
+            match.p1.progress = 0; match.p1.failed = false; match.p1.completed = false;
+            match.p2.progress = 0; match.p2.failed = false; match.p2.completed = false;
+            
+            if (match.botTimerId) clearTimeout(match.botTimerId);
+            if (match.matchTimerId) clearTimeout(match.matchTimerId);
+            
+            setTimeout(() => {
+                if (match.ended) return;
+                
+                io.to(match.id).emit('iq_round_next', {
+                    sequence: match.currentIqQuestion.sequence,
+                    round: match.roundNumber
+                });
+                
+                startIqRoundSafetyTimer(match);
+                
+                if (match.isBot) {
+                    triggerBotIqSolver(match);
+                }
+            }, 1200); // slight delay before starting next round animations
+        }
+    }
 }
 
 function determineWinnerAndEndMatch(match) {

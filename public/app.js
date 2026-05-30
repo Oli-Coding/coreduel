@@ -1239,18 +1239,170 @@ function handleSocketMatchStart(data) {
     
     const pbarUser = document.getElementById('comp-pbar-user');
     const pbarOpp = document.getElementById('comp-pbar-opp');
-    if (pbarUser) pbarUser.style.width = "0%";
-    if (pbarOpp) pbarOpp.style.width = "0%";
+    if (pbarUser) {
+        pbarUser.style.width = "0%";
+        pbarUser.style.backgroundColor = '';
+    }
+    if (pbarOpp) {
+        pbarOpp.style.width = "0%";
+        pbarOpp.style.backgroundColor = '';
+    }
+    
+    if (data.isIqGrid) {
+        compGame.iqSequence = data.sequence;
+        compGame.iqRound = data.round;
+        compGame.iqUserProgress = 0;
+        compGame.iqUserFailed = false;
+        compGame.iqUserCompleted = false;
+        compGame.iqOppProgress = 0;
+        compGame.iqOppFailed = false;
+        compGame.iqOppCompleted = false;
+        
+        renderIqGrid(data.sequence, data.round);
+    } else {
+        const container = document.getElementById('comp-options-container');
+        if (container) container.className = 'options-grid'; // restore standard layout
+        
+        if (compGame.gameIntervalId) clearInterval(compGame.gameIntervalId);
+        compGame.gameIntervalId = setInterval(() => {
+            compGame.timeLeft--;
+            safeText('comp-timer-val', compGame.timeLeft);
+            if (compGame.timeLeft <= 5 && compTimer) compTimer.classList.add('hurry');
+            if (compGame.timeLeft <= 0) clearInterval(compGame.gameIntervalId);
+        }, 1000);
+        
+        renderQuestion(data.q, data.choices);
+    }
+}
+
+function renderIqGrid(sequence, round) {
+    safeText('comp-question', `Round ${round}`);
+    safeText('comp-instruction', "Memorize the sequence!");
+    
+    const container = document.getElementById('comp-options-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    container.className = 'options-grid iq-memory-grid';
+    
+    safeText('comp-score-user', `0 / ${sequence.length}`);
+    safeText('comp-score-opp', `0 / ${sequence.length}`);
     
     if (compGame.gameIntervalId) clearInterval(compGame.gameIntervalId);
-    compGame.gameIntervalId = setInterval(() => {
-        compGame.timeLeft--;
-        safeText('comp-timer-val', compGame.timeLeft);
-        if (compGame.timeLeft <= 5 && compTimer) compTimer.classList.add('hurry');
-        if (compGame.timeLeft <= 0) clearInterval(compGame.gameIntervalId);
-    }, 1000);
     
-    renderQuestion(data.q, data.choices);
+    const tiles = [];
+    for (let i = 0; i < 9; i++) {
+        const tile = document.createElement('button');
+        tile.className = 'iq-tile';
+        tile.disabled = true;
+        
+        const seqIdx = sequence.indexOf(i);
+        if (seqIdx !== -1) {
+            tile.textContent = seqIdx + 1;
+            tile.classList.add('active-show');
+        }
+        
+        container.appendChild(tile);
+        tiles.push(tile);
+    }
+    
+    setTimeout(() => {
+        if (!compGame.active) return;
+        
+        tiles.forEach(tile => {
+            tile.textContent = '';
+            tile.classList.remove('active-show');
+            tile.disabled = false;
+        });
+        
+        safeText('comp-instruction', "Click the tiles in order 1, 2, 3...");
+        
+        compGame.timeLeft = sequence.length * 2;
+        safeText('comp-timer-val', compGame.timeLeft);
+        const compTimer = document.getElementById('comp-timer');
+        if (compTimer) compTimer.classList.remove('hurry');
+        
+        compGame.gameIntervalId = setInterval(() => {
+            compGame.timeLeft--;
+            safeText('comp-timer-val', compGame.timeLeft);
+            if (compGame.timeLeft <= 3 && compTimer) compTimer.classList.add('hurry');
+            
+            if (compGame.timeLeft <= 0) {
+                clearInterval(compGame.gameIntervalId);
+                if (!compGame.iqUserFailed && !compGame.iqUserCompleted) {
+                    compGame.iqUserFailed = true;
+                    tiles.forEach(t => t.disabled = true);
+                    
+                    sequence.forEach((tileIdx, sIdx) => {
+                        tiles[tileIdx].textContent = sIdx + 1;
+                        if (sIdx >= compGame.iqUserProgress) {
+                            tiles[tileIdx].classList.add('active-show');
+                        }
+                    });
+                    
+                    socket.emit('iq_submit_progress', {
+                        matchId: compGame.matchId,
+                        progress: compGame.iqUserProgress,
+                        failed: true,
+                        completed: false
+                    });
+                }
+            }
+        }, 1000);
+        
+        tiles.forEach((tile, index) => {
+            tile.onclick = () => {
+                if (compGame.iqUserFailed || compGame.iqUserCompleted) return;
+                
+                const expectedIdx = sequence[compGame.iqUserProgress];
+                if (index === expectedIdx) {
+                    compGame.iqUserProgress++;
+                    tile.textContent = compGame.iqUserProgress;
+                    tile.classList.add('clicked-correct');
+                    tile.disabled = true;
+                    
+                    if (compGame.iqUserProgress === sequence.length) {
+                        compGame.iqUserCompleted = true;
+                        clearInterval(compGame.gameIntervalId);
+                        
+                        socket.emit('iq_submit_progress', {
+                            matchId: compGame.matchId,
+                            progress: compGame.iqUserProgress,
+                            failed: false,
+                            completed: true
+                        });
+                    } else {
+                        socket.emit('iq_submit_progress', {
+                            matchId: compGame.matchId,
+                            progress: compGame.iqUserProgress,
+                            failed: false,
+                            completed: false
+                        });
+                    }
+                } else {
+                    compGame.iqUserFailed = true;
+                    clearInterval(compGame.gameIntervalId);
+                    tile.classList.add('clicked-wrong');
+                    tiles.forEach(t => t.disabled = true);
+                    
+                    sequence.forEach((tileIdx, sIdx) => {
+                        tiles[tileIdx].textContent = sIdx + 1;
+                        if (sIdx >= compGame.iqUserProgress) {
+                            tiles[tileIdx].classList.add('active-show');
+                        }
+                    });
+                    
+                    socket.emit('iq_submit_progress', {
+                        matchId: compGame.matchId,
+                        progress: compGame.iqUserProgress,
+                        failed: true,
+                        completed: false
+                    });
+                }
+            };
+        });
+        
+    }, 1500);
 }
 
 function renderQuestion(questionText, choices) {
@@ -1631,6 +1783,64 @@ function initSocket(token) {
     
     socket.on('question_next', (data) => {
         renderQuestion(data.q, data.choices);
+    });
+    
+    socket.on('iq_round_next', (data) => {
+        compGame.iqSequence = data.sequence;
+        compGame.iqRound = data.round;
+        compGame.iqUserProgress = 0;
+        compGame.iqUserFailed = false;
+        compGame.iqUserCompleted = false;
+        compGame.iqOppProgress = 0;
+        compGame.iqOppFailed = false;
+        compGame.iqOppCompleted = false;
+        
+        const pbarUser = document.getElementById('comp-pbar-user');
+        const pbarOpp = document.getElementById('comp-pbar-opp');
+        if (pbarUser) {
+            pbarUser.style.width = '0%';
+            pbarUser.style.backgroundColor = '';
+        }
+        if (pbarOpp) {
+            pbarOpp.style.width = '0%';
+            pbarOpp.style.backgroundColor = '';
+        }
+        
+        renderIqGrid(data.sequence, data.round);
+    });
+    
+    socket.on('iq_progress_update', (data) => {
+        const myProgress = compGame.isP1 ? data.p1Progress : data.p2Progress;
+        const myFailed = compGame.isP1 ? data.p1Failed : data.p2Failed;
+        const myCompleted = compGame.isP1 ? data.p1Completed : data.p2Completed;
+        
+        const oppProgress = compGame.isP1 ? data.p2Progress : data.p1Progress;
+        const oppFailed = compGame.isP1 ? data.p2Failed : data.p1Failed;
+        const oppCompleted = compGame.isP1 ? data.p2Completed : data.p1Completed;
+        
+        const seqLen = compGame.iqSequence ? compGame.iqSequence.length : 3;
+        const userPercent = (myProgress / seqLen) * 100;
+        const oppPercent = (oppProgress / seqLen) * 100;
+        
+        const pbarUser = document.getElementById('comp-pbar-user');
+        const pbarOpp = document.getElementById('comp-pbar-opp');
+        
+        if (pbarUser) {
+            pbarUser.style.width = `${userPercent}%`;
+            if (myFailed) pbarUser.style.backgroundColor = '#ef4444';
+            else if (myCompleted) pbarUser.style.backgroundColor = '#10b981';
+            else pbarUser.style.backgroundColor = '';
+        }
+        
+        if (pbarOpp) {
+            pbarOpp.style.width = `${oppPercent}%`;
+            if (oppFailed) pbarOpp.style.backgroundColor = '#ef4444';
+            else if (oppCompleted) pbarOpp.style.backgroundColor = '#10b981';
+            else pbarOpp.style.backgroundColor = '';
+        }
+        
+        safeText('comp-score-user', myFailed ? "FAILED" : (myCompleted ? "COMPLETED" : `${myProgress} / ${seqLen}`));
+        safeText('comp-score-opp', oppFailed ? "FAILED" : (oppCompleted ? "COMPLETED" : `${oppProgress} / ${seqLen}`));
     });
     
     socket.on('score_update', (data) => {
