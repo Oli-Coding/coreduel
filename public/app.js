@@ -1755,7 +1755,13 @@ function triggerComboEffect(streak) {
 function initSocket(token) {
     if (socket) return;
     
-    socket = io();
+    socket = io({
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+        timeout: 20000
+    });
     socket.emit('auth_handshake', token);
     
     socket.on('match_found', (data) => {
