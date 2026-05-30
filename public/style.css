@@ -2123,6 +2123,15 @@ main::-webkit-scrollbar {
 .leaderboard-item.rank-first.bg-master-equipped::before {
     display: none;
 }
+/* Also remove gold text overrides so cosmic purple styling wins */
+.leaderboard-item.rank-first.bg-master-equipped .leaderboard-rank,
+.leaderboard-item.rank-first.bg-master-equipped .leaderboard-name,
+.leaderboard-item.rank-first.bg-master-equipped .leaderboard-score {
+    color: unset;
+    text-shadow: unset;
+    filter: unset;
+    font-size: unset;
+}
 
 /* ==================== CINEMATIC FACEOFF TAKEOVER ==================== */
 .cinematic-faceoff-panel {
@@ -2835,29 +2844,16 @@ body.theme-aurora::before {
     0% {
         transform: translateY(0) translateX(0) scale(0.5) rotate(0deg);
         opacity: 0;
-        animation-timing-function: ease-in;
     }
     10% {
         opacity: 1;
-        animation-timing-function: linear;
     }
-    /* Fast through the card itself — decelerate around the mid-card zone (~-30 to -60px) */
-    35% {
-        transform: translateY(-50px) translateX(8px) scale(0.9) rotate(120deg);
-        animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
-    }
-    /* Midpoint deceleration zone — smooth cruise through visible card area */
-    55% {
-        transform: translateY(-110px) translateX(15px) scale(1.1) rotate(200deg);
-        opacity: 0.95;
-        animation-timing-function: ease-out;
-    }
-    80% {
-        opacity: 0.6;
-        animation-timing-function: ease-in;
+    50% {
+        transform: translateY(-100px) translateX(-30px) scale(1.0) rotate(180deg);
+        opacity: 0.9;
     }
     100% {
-        transform: translateY(-260px) translateX(-15px) scale(0.3) rotate(380deg);
+        transform: translateY(-220px) translateX(-60px) scale(0.3) rotate(360deg);
         opacity: 0;
     }
 }
@@ -3212,6 +3208,16 @@ body.theme-aurora::before {
 }
 .leaderboard-item.rank-first.bg-master-equipped::before {
     display: none !important;
+}
+/* Remove all gold text overrides */
+.leaderboard-item.rank-first.bg-master-equipped .leaderboard-rank,
+.leaderboard-item.rank-first.bg-master-equipped .leaderboard-name,
+.leaderboard-item.rank-first.bg-master-equipped .leaderboard-score {
+    color: unset !important;
+    text-shadow: unset !important;
+    filter: unset !important;
+    font-size: unset !important;
+    font-weight: unset !important;
 }
 
 /* Premium Highlight bottom tabbar options */
