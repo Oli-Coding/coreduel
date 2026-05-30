@@ -360,18 +360,20 @@
                     <p class="section-desc">Global champions and ranking podium.</p>
                 </div>
 
-                <!-- Leaderboard Category Tabs -->
-                <div class="leaderboard-tabs" id="leaderboard-categories-tabbar">
-                    <button class="lb-tab active" data-lb-cat="global">🌍 Global</button>
-                    <button class="lb-tab" data-lb-cat="math">➕ Math Elo</button>
-                    <button class="lb-tab" data-lb-cat="iq">🧠 IQ Elo</button>
-                </div>
-
-                <!-- Leaderboard Sub-Tabs (All Players, Friends, Clubs) -->
-                <div class="leaderboard-tabs sub-tabs" id="leaderboard-subtabs" style="margin-top:-8px;">
-                    <button class="lb-subtab active" data-lb-sub="global_all">All Players</button>
-                    <button class="lb-subtab" data-lb-sub="global_friends">Friends</button>
-                    <button class="lb-subtab" data-lb-sub="global_clubs">Clubs</button>
+                <!-- Leaderboard Tabs & Sub-Tabs in a single row -->
+                <div class="leaderboard-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:8px;">
+                    <!-- Category Tabs (left side) -->
+                    <div class="leaderboard-tabs" id="leaderboard-categories-tabbar" style="margin-bottom:0; flex:1;">
+                        <button class="lb-tab active" data-lb-cat="global">🌍 Global</button>
+                        <button class="lb-tab" data-lb-cat="math">➕ Math</button>
+                        <button class="lb-tab" data-lb-cat="iq">🧠 IQ</button>
+                    </div>
+                    <!-- Sub-Tabs Icons (right side) -->
+                    <div class="leaderboard-tabs sub-tabs" id="leaderboard-subtabs" style="margin-top:0; margin-bottom:0; flex:initial; width:auto; gap:2px; padding:4px; border-radius:14px;">
+                        <button class="lb-subtab active" data-lb-sub="global_all" style="padding:8px 12px; border-radius:10px;" title="All Players">🌍</button>
+                        <button class="lb-subtab" data-lb-sub="global_friends" style="padding:8px 12px; border-radius:10px;" title="Friends">👥</button>
+                        <button class="lb-subtab" data-lb-sub="global_clubs" style="padding:8px 12px; border-radius:10px;" title="Clubs">🛡️</button>
+                    </div>
                 </div>
 
                 <!-- Podium Graphics -->
