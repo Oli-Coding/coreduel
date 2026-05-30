@@ -4061,7 +4061,7 @@ body.theme-aurora::before {
 
 @media (min-width: 600px) {
     .premium-upgrade-container {
-        flex-direction: row;
+        flex-direction: column;
         align-items: stretch;
     }
 }
@@ -4391,6 +4391,91 @@ body.theme-aurora::before {
 @keyframes ad-bounce {
     0% { transform: translateY(0); }
     100% { transform: translateY(-4px); }
+}
+
+/* ==================== PREMIUM VISUAL SHOWCASE PREVIEW ==================== */
+.premium-preview-showcase {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0 20px 0;
+    align-items: stretch;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    padding: 18px 12px 12px 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-badge-title {
+    position: absolute;
+    top: 0; left: 0;
+    background: #8b5cf6;
+    color: #fff;
+    font-size: 8px;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-bottom-right-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.preview-item-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.preview-label-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: #a78bfa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Mini Background Card Preview */
+.preview-bg-card-mini {
+    width: 100%;
+    height: 60px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.preview-bg-card-mini .mini-title {
+    font-size: 10px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(250,204,21,0.8);
+    z-index: 3;
+}
+
+/* Mini Avatar Showcase */
+.preview-avatar-mini-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.preview-avatar-mini-wrapper img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 
