@@ -923,7 +923,34 @@
                         <span class="stat-value" id="profile-stat-level">Lvl 1</span>
                     </div>
                 </div>
-                
+
+                <!-- Custom Cosmetics Equipping Option -->
+                <div class="profile-modal-cosmetics" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px; text-align: left;">
+                    <div style="font-size: 11px; font-weight: 800; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span>🎭</span> Choose Cosmetics
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 4px; display: block;">Title</label>
+                            <select id="profile-equipped-title-select" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 8px; color: #fff; font-family: inherit; font-size: 12px; outline: none;">
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 4px; display: block;">Avatar Frame</label>
+                            <select id="profile-equipped-frame-select" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 8px; color: #fff; font-family: inherit; font-size: 12px; outline: none;">
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 4px; display: block;">Profile Background</label>
+                            <select id="profile-equipped-bg-select" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 8px; color: #fff; font-family: inherit; font-size: 12px; outline: none;">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Large Settings Button -->
                 <div style="margin-top: 15px;">
                     <button class="result-btn" id="open-settings-modal-btn" style="width: 100%; margin-top: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px;">

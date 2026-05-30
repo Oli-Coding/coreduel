@@ -961,16 +961,21 @@ function renderStreakModal() {
     const lastClaim = localStorage.getItem(`last_streak_claim_${userState.id || 'guest'}`);
     const hasClaimedToday = (lastClaim === todayStr);
     
+    const startOffset = claimedCount > 0 ? -1 : 0;
+    
     for (let i = 0; i < 7; i++) {
         const slot = document.createElement('div');
         let dayClass = 'streak-day-slot';
         let iconHtml = '';
-        const dayNumber = claimedCount + 1 + i;
+        const dayNumber = claimedCount + 1 + startOffset + i;
         
-        // Slot 0 (the next unchecked day) is claimable today ONLY if we haven't checked in yet today
-        const isActiveToday = (i === 0 && !hasClaimedToday && claimedCount < 7);
+        const isLastClaimed = (claimedCount > 0 && i === 0);
+        const isActiveToday = (claimedCount === 0 ? i === 0 : i === 1) && !hasClaimedToday && claimedCount < 7;
         
-        if (isActiveToday) {
+        if (isLastClaimed) {
+            dayClass += ' claimed-yellow';
+            iconHtml = `<svg class="slot-icon" style="fill:#facc15;" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+        } else if (isActiveToday) {
             dayClass += ' active-today';
             iconHtml = `<svg class="slot-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
         } else {
@@ -979,10 +984,20 @@ function renderStreakModal() {
         }
         
         slot.className = dayClass;
+        
+        let labelText = '';
+        if (isLastClaimed) {
+            labelText = 'Claimed';
+        } else if (isActiveToday) {
+            labelText = 'Claim!';
+        } else {
+            labelText = 'Locked';
+        }
+        
         slot.innerHTML = `
             <span class="streak-day-label">Day ${dayNumber}</span>
             ${iconHtml}
-            <span class="streak-day-val" style="font-size:10px;">${isActiveToday ? 'Claim!' : (i === 0 && hasClaimedToday ? 'Tomorrow' : 'Locked')}</span>
+            <span class="streak-day-val" style="font-size:10px;">${labelText}</span>
         `;
         
         if (isActiveToday) slot.addEventListener('click', claimDailyCheckIn);
@@ -1333,8 +1348,104 @@ function handleSocketMatchEnd(data) {
 let modalProfile = null;
 let modalSettings = null;
 
+function renderProfileCosmetics() {
+    const titleSelect = document.getElementById('profile-equipped-title-select');
+    const frameSelect = document.getElementById('profile-equipped-frame-select');
+    const bgSelect = document.getElementById('profile-equipped-bg-select');
+    if (!titleSelect || !frameSelect || !bgSelect) return;
+
+    titleSelect.innerHTML = '';
+    frameSelect.innerHTML = '';
+    bgSelect.innerHTML = '';
+
+    const allFrames = [
+        { id: "default", name: "Standard Frame" },
+        { id: "frame-fire", name: "Orange Fire Frame" },
+        { id: "frame-matrix", name: "Green Matrix Frame" },
+        { id: "frame-neon-yellow", name: "Glowing Neon Frame" },
+        { id: "frame-cosmic", name: "Cosmic Glow Frame" }
+    ];
+
+    const allTitles = [
+        { id: "Novice Dueler", name: "Novice Dueler" },
+        { id: "Elite Duelist", name: "Elite Duelist" },
+        { id: "Cosmic King", name: "Cosmic King" },
+        { id: "Core Emperor", name: "Core Emperor" },
+        { id: "Mensa Member", name: "Mensa Member" },
+        { id: "Math God", name: "Math God" }
+    ];
+
+    const allBackgrounds = [
+        { id: "bg-default", name: "Default Theme BG" },
+        { id: "bg-master", name: "Cosmic Particle BG" }
+    ];
+
+    allFrames.forEach(f => {
+        const isPremiumCosmic = (f.id === 'frame-cosmic' && userState.premium === 2);
+        if (userState.inventory.includes(f.id) || isPremiumCosmic || f.id === 'default') {
+            const opt = document.createElement('option');
+            opt.value = f.id;
+            opt.textContent = f.name;
+            opt.selected = (userState.equippedFrame === f.id);
+            frameSelect.appendChild(opt);
+        }
+    });
+
+    allTitles.forEach(t => {
+        const isPremiumLite = (t.id === 'Elite Duelist' && userState.premium >= 1);
+        const isPremiumCosmic = (t.id === 'Cosmic King' && userState.premium === 2);
+        if (userState.inventory.includes(t.id) || isPremiumLite || isPremiumCosmic || t.id === 'Novice Dueler') {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = t.name;
+            opt.selected = (userState.equippedTitle === t.id);
+            titleSelect.appendChild(opt);
+        }
+    });
+
+    allBackgrounds.forEach(b => {
+        const isPremiumCosmic = (b.id === 'bg-master' && userState.premium === 2);
+        if (userState.inventory.includes(b.id) || isPremiumCosmic || b.id === 'bg-default') {
+            const opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = b.name;
+            opt.selected = (userState.equippedBackground === b.id);
+            bgSelect.appendChild(opt);
+        }
+    });
+}
+
+function setupCosmeticsListeners() {
+    const titleSelect = document.getElementById('profile-equipped-title-select');
+    const frameSelect = document.getElementById('profile-equipped-frame-select');
+    const bgSelect = document.getElementById('profile-equipped-bg-select');
+    
+    if (titleSelect) {
+        titleSelect.onchange = (e) => {
+            userState.equippedTitle = e.target.value;
+            updateUI();
+            saveState();
+        };
+    }
+    if (frameSelect) {
+        frameSelect.onchange = (e) => {
+            userState.equippedFrame = e.target.value;
+            updateUI();
+            saveState();
+        };
+    }
+    if (bgSelect) {
+        bgSelect.onchange = (e) => {
+            userState.equippedBackground = e.target.value;
+            updateUI();
+            saveState();
+        };
+    }
+}
+
 function showProfileModal() {
     updateUI();
+    renderProfileCosmetics();
     if (modalProfile) modalProfile.classList.add('active');
 }
 
@@ -1644,6 +1755,7 @@ async function simulateSocialLogin(provider) {
 
 // ==================== BINDING TRIGGERS ====================
 function bindAllTriggers() {
+    setupCosmeticsListeners();
     const cardMath = document.getElementById('card-math-duel');
     if (cardMath) cardMath.onclick = () => startRankedMatchmaking("math");
     

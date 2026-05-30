@@ -4717,16 +4717,35 @@ body.theme-aurora::before {
     transform: translateY(-35px) !important;
 }
 
-/* Lift the ranking list and sections slightly */
+/* Page ranking alignment */
 #page-ranking {
-    margin-top: -30px !important;
+    padding-top: 15px !important;
 }
 
 .podium-container {
-    height: 150px !important;
-    margin-top: 2px !important;
-    margin-bottom: 12px !important;
-    padding-bottom: 4px !important;
+    height: 115px !important;
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 2px !important;
+}
+
+.podium-avatar {
+    width: 42px !important;
+    height: 42px !important;
+    border-width: 2px !important;
+}
+
+.podium-spot.first .podium-avatar {
+    width: 50px !important;
+    height: 50px !important;
+}
+
+.podium-username {
+    font-size: 11px !important;
+}
+
+.podium-score {
+    font-size: 10px !important;
 }
 
 /* Higher z-index to overlay avatar picker on top of profile card */
