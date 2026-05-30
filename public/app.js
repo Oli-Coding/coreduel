@@ -645,6 +645,50 @@ function renderShop() {
     if (!gridContainer) return;
     gridContainer.innerHTML = '';
     
+    if (activeShopCategory === 'coins') {
+        gridContainer.className = 'shop-grid titles-list coins-list';
+        const packages = [
+            { id: "coin-pack-1", name: "1,000 Coins", price: "2.99 €", coinsVal: 1000, desc: "Perfect starter boost for quick upgrades." },
+            { id: "coin-pack-2", name: "10,000 Coins", price: "5.99 €", coinsVal: 10000, desc: "⭐ Best Value! Huge stack for elite customization." },
+            { id: "coin-pack-3", name: "50,000 Coins", price: "19.99 €", coinsVal: 50000, desc: "Ultimate Fortune! Unbelievable treasure chest." }
+        ];
+        
+        packages.forEach(pack => {
+            const row = document.createElement('div');
+            row.className = 'shop-title-row coin-package-row';
+            row.style.background = 'rgba(250, 204, 21, 0.05)';
+            row.style.border = '1px solid rgba(250, 204, 21, 0.15)';
+            row.style.position = 'relative';
+            row.style.overflow = 'hidden';
+            
+            if (pack.id === 'coin-pack-2') {
+                row.style.background = 'radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%)';
+                row.style.border = '2px solid #facc15';
+                row.style.boxShadow = '0 0 15px rgba(250, 204, 21, 0.2)';
+            }
+            
+            row.onclick = () => {
+                userState.coins += pack.coinsVal;
+                updateUI();
+                saveState();
+                alert(`Successfully purchased ${pack.name}! Credited ${pack.coinsVal.toLocaleString()} Coins to your account!`);
+            };
+            
+            row.innerHTML = `
+                <div style="z-index: 2; display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 28px;">🪙</div>
+                    <div style="text-align: left;">
+                        <div class="shop-title-name" style="color: #facc15; font-weight: 900; font-size: 15px;">${pack.name}</div>
+                        <div class="shop-title-desc" style="font-size: 11px;">${pack.desc}</div>
+                    </div>
+                </div>
+                <span class="shop-grid-price-tag" style="background: linear-gradient(90deg, #facc15, #eab308); color: #000; font-weight: 900; border: none; padding: 6px 12px; border-radius: 6px; z-index: 2;">${pack.price}</span>
+            `;
+            gridContainer.appendChild(row);
+        });
+        return;
+    }
+    
     if (activeShopCategory === 'titles' || activeShopCategory === 'backgrounds') {
         gridContainer.className = 'shop-grid titles-list';
         const items = activeShopCategory === 'titles' ? shopTitles : shopBackgrounds;
