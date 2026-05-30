@@ -511,27 +511,27 @@ function leaveAllQueues(socket) {
 
 function getBotDetailsForElo(elo) {
     const rankInfo = getEloRank(elo);
-    let speedRange = [5500, 7500];
-    let accuracy = 0.40;
+    let speedRange = [3000, 5000];
+    let accuracy = 0.60;
     
     if (rankInfo.name.includes("Bronze")) {
-        speedRange = [5500, 7500];
-        accuracy = 0.45;
+        speedRange = [1200, 2000];
+        accuracy = 0.85;
     } else if (rankInfo.name.includes("Silber")) {
-        speedRange = [4000, 5500];
-        accuracy = 0.65;
+        speedRange = [900, 1500];
+        accuracy = 0.90;
     } else if (rankInfo.name.includes("Gold")) {
-        speedRange = [3000, 4200];
-        accuracy = 0.75;
+        speedRange = [700, 1100];
+        accuracy = 0.95;
     } else if (rankInfo.name.includes("Diamant")) {
-        speedRange = [2200, 3200];
-        accuracy = 0.84;
+        speedRange = [500, 800];
+        accuracy = 0.97;
     } else if (rankInfo.name.includes("Champion")) {
-        speedRange = [1500, 2400];
-        accuracy = 0.89;
+        speedRange = [400, 600];
+        accuracy = 0.99;
     } else {
-        speedRange = [800, 1500];
-        accuracy = 0.96;
+        speedRange = [300, 500];
+        accuracy = 1.00;
     }
     
     const botNames = ["Mia", "Leo", "Zoe", "Alex", "Sasha", "Nico", "Sophia", "Lucas", "Max", "Amelie", "Felix", "Emma"];

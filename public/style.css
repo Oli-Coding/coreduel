@@ -4479,5 +4479,216 @@ body.theme-aurora::before {
     object-fit: cover;
 }
 
+/* ==================== COIN STORE MODERN CARD GRID ==================== */
+.shop-grid.coins-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+}
+
+@media (max-width: 480px) {
+    .shop-grid.coins-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+    }
+}
+
+.coin-package-card {
+    background: rgba(30, 41, 59, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    padding: 16px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-align: center !important;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.2s, box-shadow 0.25s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px !important;
+}
+
+.coin-package-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(250, 204, 21, 0.4) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(250,204,21,0.15);
+}
+
+.coin-package-card.best-value {
+    background: radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.1) 0%, rgba(30, 41, 59, 0.5) 100%) !important;
+    border: 1.5px solid #facc15 !important;
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.15);
+}
+
+.coin-package-card.best-value:hover {
+    box-shadow: 0 12px 30px rgba(250, 204, 21, 0.3);
+    border-color: #fbbf24 !important;
+}
+
+.coin-pack-icon-wrapper {
+    position: relative;
+    width: 54px;
+    height: 54px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.3s;
+    z-index: 2;
+}
+
+.coin-package-card:hover .coin-pack-icon-wrapper {
+    background: rgba(250, 204, 21, 0.05);
+}
+
+.coin-pack-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 2px 6px rgba(250,204,21,0.4));
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-block;
+}
+
+.coin-package-card:hover .coin-pack-icon {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.coin-card-details {
+    flex-grow: 1;
+    margin-bottom: 10px;
+    z-index: 2;
+}
+
+.coin-card-name {
+    color: #facc15;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: -0.2px;
+    margin-bottom: 3px;
+}
+
+.coin-card-desc {
+    font-size: 9px;
+    line-height: 1.25;
+    color: var(--color-text-secondary);
+}
+
+.coin-card-price-tag {
+    background: linear-gradient(90deg, #facc15, #eab308);
+    color: #000;
+    font-weight: 900;
+    font-size: 10px;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.coin-package-card:hover .coin-card-price-tag {
+    transform: scale(1.05);
+}
+
+.coin-package-card .pack-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #facc15;
+    color: #000;
+    font-size: 7px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-bottom-left-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 3;
+}
+
+.coin-card-particles {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.coin-spark {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #facc15;
+    border-radius: 50%;
+    opacity: 0;
+    animation: coin-sparkle 1.5s infinite ease-in-out;
+}
+
+@keyframes coin-sparkle {
+    0% { transform: scale(0) translateY(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: scale(1.5) translateY(-20px); opacity: 0; }
+}
+
+/* Matchmaking Found HEFTIG shake and flash effects */
+.shake-panel {
+    animation: faceoff-shake 0.6s cubic-bezier(.36,.07,.19,.97) both !important;
+}
+
+@keyframes faceoff-shake {
+    10%, 90% { transform: translate3d(-3px, -2px, 0); }
+    20%, 80% { transform: translate3d(5px, 4px, 0); }
+    30%, 50%, 70% { transform: translate3d(-7px, -6px, 0); }
+    40%, 60% { transform: translate3d(7px, 6px, 0); }
+}
+
+.faceoff-flash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    opacity: 0;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.faceoff-flash-active {
+    animation: flash-animation 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes flash-animation {
+    0% { opacity: 1; }
+    30% { opacity: 0.85; }
+    100% { opacity: 0; }
+}
+
+/* Spacing to lift leaderboard row container above bottom tab bar */
+#leaderboard-my-row {
+    margin-bottom: 78px !important;
+}
+
+/* Hide Correct | Wrong indicators completely during match */
+.battle-pscore {
+    display: none !important;
+}
+
+/* Keyframes for Reward claim popup modal */
+@keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes reward-bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+}
+
 
 

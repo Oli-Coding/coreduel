@@ -203,13 +203,7 @@ function updateUI() {
         if (!el) return;
         const existingParticles = el.querySelector('.master-bg-wrapper');
         if (existingParticles) existingParticles.remove();
-        
-        if (isMasterBg) {
-            el.classList.add('bg-master-equipped');
-            el.insertAdjacentHTML('afterbegin', particlesTemplate);
-        } else {
-            el.classList.remove('bg-master-equipped');
-        }
+        el.classList.remove('bg-master-equipped');
     });
     
     const detailAvatar = document.getElementById('profile-detail-avatar');
@@ -381,10 +375,119 @@ function viewBackgroundInShop() {
 
 // ==================== LEADERBOARD RENDER ====================
 let activeLbCategory = 'global';
+let activeLbSubcategory = 'global_all';
 
 function renderLeaderboard() {
     const mode = activeLbCategory === 'global' ? 'global' : (activeLbCategory === 'math' ? 'math' : 'iq');
+    const subTabbar = document.getElementById('leaderboard-subtabs');
+    const podiumContainer = document.querySelector('.podium-container');
+    const listContainer = document.getElementById('leaderboard-list');
     
+    if (activeLbCategory === 'global') {
+        if (subTabbar) subTabbar.style.display = 'flex';
+    } else {
+        if (subTabbar) subTabbar.style.display = 'none';
+        activeLbSubcategory = 'global_all';
+    }
+
+    // Handle podium visibility
+    if (activeLbCategory === 'global' && activeLbSubcategory !== 'global_all') {
+        if (podiumContainer) podiumContainer.style.display = 'none';
+    } else {
+        if (podiumContainer) podiumContainer.style.display = 'flex';
+    }
+
+    // Toggle sub-tab button styling
+    if (subTabbar) {
+        subTabbar.querySelectorAll('.lb-subtab').forEach(btn => {
+            if (btn.getAttribute('data-lb-sub') === activeLbSubcategory) {
+                btn.classList.add('active');
+                btn.style.color = '#000';
+            } else {
+                btn.classList.remove('active');
+                btn.style.color = '#cbd5e1';
+            }
+        });
+    }
+
+    // Render Friends List Empty state or entries
+    if (activeLbCategory === 'global' && activeLbSubcategory === 'global_friends') {
+        if (listContainer) {
+            listContainer.innerHTML = '';
+            userState.friends = userState.friends || [];
+            
+            // Build temporary friends list with user included
+            const fullList = [
+                { name: userState.name, elo: userState.elo, streak: userState.streak, title: userState.equippedTitle, frame: userState.equippedFrame, background: userState.equippedBackground, avatarSeed: userState.avatarSeed, premium: userState.premium },
+                ...userState.friends
+            ];
+            fullList.sort((a, b) => b.elo - a.elo);
+            
+            if (userState.friends.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; gap:12px;">
+                        <span style="font-size:32px;">👥</span>
+                        <p style="font-size:12px; color:var(--color-text-secondary); margin:0;">You haven't added any friends yet!</p>
+                        <button class="result-btn" id="empty-friends-add-btn" style="max-width:180px; padding:8px 16px; font-size:11px; background:var(--color-accent); color:#000; font-weight:800; border:none; border-radius:8px; cursor:pointer;">Add Friend</button>
+                    </div>
+                `;
+                const emptyBtn = document.getElementById('empty-friends-add-btn');
+                if (emptyBtn) {
+                    emptyBtn.onclick = () => {
+                        const m = document.getElementById('modal-friends');
+                        if (m) m.classList.add('active');
+                        renderFriendsList();
+                    };
+                }
+            } else {
+                fullList.forEach((player, i) => {
+                    renderLeaderboardItem(listContainer, player, i);
+                });
+            }
+        }
+        
+        // Hide Position when rendering custom lists
+        const divider = document.getElementById('leaderboard-my-divider');
+        const myRow = document.getElementById('leaderboard-my-row');
+        if (divider) divider.style.display = 'none';
+        if (myRow) myRow.style.display = 'none';
+        return;
+    }
+
+    if (activeLbCategory === 'global' && activeLbSubcategory === 'global_clubs') {
+        if (listContainer) {
+            listContainer.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; gap:12px;">
+                    <span style="font-size:32px;">🛡️</span>
+                    <h4 style="font-size:14px; margin:0; color:#a78bfa;">Clubs Coming in Season 2</h4>
+                    <p style="font-size:11px; color:var(--color-text-secondary); margin:0; max-width:240px;">Create alliances, complete daily math challenges together, and battle in Club Leagues soon!</p>
+                </div>
+            `;
+        }
+        const divider = document.getElementById('leaderboard-my-divider');
+        const myRow = document.getElementById('leaderboard-my-row');
+        if (divider) divider.style.display = 'none';
+        if (myRow) myRow.style.display = 'none';
+        return;
+    }
+
+    if (activeLbCategory === 'global' && activeLbSubcategory === 'global_placeholder') {
+        if (listContainer) {
+            listContainer.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; gap:12px;">
+                    <span style="font-size:32px;">🏆</span>
+                    <h4 style="font-size:14px; margin:0; color:#f59e0b;">Championship Leagues</h4>
+                    <p style="font-size:11px; color:var(--color-text-secondary); margin:0; max-width:240px;">Weekly regional brackets, cup tournaments, and championship rules are currently in development.</p>
+                </div>
+            `;
+        }
+        const divider = document.getElementById('leaderboard-my-divider');
+        const myRow = document.getElementById('leaderboard-my-row');
+        if (divider) divider.style.display = 'none';
+        if (myRow) myRow.style.display = 'none';
+        return;
+    }
+
     fetch(`/api/leaderboard?mode=${mode}`)
         .then(res => res.json())
         .then(list => {
@@ -419,7 +522,6 @@ function renderLeaderboard() {
                 }
             });
 
-            const listContainer = document.getElementById('leaderboard-list');
             if (listContainer) {
                 listContainer.innerHTML = '';
                 list.slice(0, 5).forEach((player, i) => {
@@ -619,21 +721,21 @@ window.claimPassReward = function(type, tier) {
 
 // ==================== SHOP LAYOUT & INSPECTOR SYSTEM ====================
 const shopFrames = [
-    { id: "frame-fire", name: "Orange Fire Frame", desc: "A spectacular blazing frame for champions.", price: 1000, type: 'frame' },
-    { id: "frame-matrix", name: "Green Matrix Frame", desc: "Code rain outline for logical calculation masters.", price: 1500, type: 'frame' },
-    { id: "frame-neon-yellow", name: "Glowing Neon", desc: "A vibrant yellow glowing outline.", price: 500, type: 'frame' },
+    { id: "frame-fire", name: "Orange Fire Frame", desc: "A spectacular blazing frame for champions.", price: 4000, type: 'frame' },
+    { id: "frame-matrix", name: "Green Matrix Frame", desc: "Code rain outline for logical calculation masters.", price: 6000, type: 'frame' },
+    { id: "frame-neon-yellow", name: "Glowing Neon", desc: "A vibrant yellow glowing outline.", price: 2000, type: 'frame' },
     { id: "default", name: "Standard Frame", desc: "The standard minimalistic grey outline.", price: 0, type: 'frame' }
 ];
 
 const shopTitles = [
-    { id: "Core Emperor", desc: "The ultimate bragging title for supreme thinkers.", price: 1200, type: 'title' },
-    { id: "Mensa Member", desc: "A title fit for logical sequence masterminds.", price: 600, type: 'title' },
-    { id: "Math God", desc: "Show off your high-speed mental processing.", price: 300, type: 'title' },
+    { id: "Core Emperor", desc: "The ultimate bragging title for supreme thinkers.", price: 4800, type: 'title' },
+    { id: "Mensa Member", desc: "A title fit for logical sequence masterminds.", price: 2400, type: 'title' },
+    { id: "Math God", desc: "Show off your high-speed mental processing.", price: 1200, type: 'title' },
     { id: "Novice Dueler", desc: "A clean starting title for trainees.", price: 0, type: 'title' }
 ];
 
 const shopBackgrounds = [
-    { id: "bg-master", name: "Cosmic Particle BG", desc: "Legendary animated particles floating in deep cosmic space.", price: 2000, type: 'background' },
+    { id: "bg-master", name: "Cosmic Particle BG", desc: "Legendary animated particles floating in deep cosmic space.", price: 8000, type: 'background' },
     { id: "bg-default", name: "Default Theme BG", desc: "The standard sleek dark-blue aesthetic.", price: 0, type: 'background' }
 ];
 
@@ -646,45 +748,46 @@ function renderShop() {
     gridContainer.innerHTML = '';
     
     if (activeShopCategory === 'coins') {
-        gridContainer.className = 'shop-grid titles-list coins-list';
+        gridContainer.className = 'shop-grid coins-grid';
         const packages = [
-            { id: "coin-pack-1", name: "1,000 Coins", price: "2.99 €", coinsVal: 1000, desc: "Perfect starter boost for quick upgrades." },
-            { id: "coin-pack-2", name: "10,000 Coins", price: "5.99 €", coinsVal: 10000, desc: "⭐ Best Value! Huge stack for elite customization." },
-            { id: "coin-pack-3", name: "50,000 Coins", price: "19.99 €", coinsVal: 50000, desc: "Ultimate Fortune! Unbelievable treasure chest." }
+            { id: "coin-pack-1", name: "1,000 Coins", price: "2.99 €", coinsVal: 1000, desc: "Perfect starter boost.", icon: "🪙", particles: 3 },
+            { id: "coin-pack-2", name: "10,000 Coins", price: "5.99 €", coinsVal: 10000, desc: "Best value pack!", icon: "💰", particles: 6 },
+            { id: "coin-pack-3", name: "50,000 Coins", price: "19.99 €", coinsVal: 50000, desc: "Ultimate fortune chest.", icon: "👑🪙", particles: 9 }
         ];
         
         packages.forEach(pack => {
-            const row = document.createElement('div');
-            row.className = 'shop-title-row coin-package-row';
-            row.style.background = 'rgba(250, 204, 21, 0.05)';
-            row.style.border = '1px solid rgba(250, 204, 21, 0.15)';
-            row.style.position = 'relative';
-            row.style.overflow = 'hidden';
+            const card = document.createElement('div');
+            card.className = `coin-package-card ${pack.id === 'coin-pack-2' ? 'best-value' : ''}`;
             
-            if (pack.id === 'coin-pack-2') {
-                row.style.background = 'radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%)';
-                row.style.border = '2px solid #facc15';
-                row.style.boxShadow = '0 0 15px rgba(250, 204, 21, 0.2)';
-            }
-            
-            row.onclick = () => {
+            card.onclick = () => {
                 userState.coins += pack.coinsVal;
                 updateUI();
                 saveState();
                 alert(`Successfully purchased ${pack.name}! Credited ${pack.coinsVal.toLocaleString()} Coins to your account!`);
             };
             
-            row.innerHTML = `
-                <div style="z-index: 2; display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 28px;">🪙</div>
-                    <div style="text-align: left;">
-                        <div class="shop-title-name" style="color: #facc15; font-weight: 900; font-size: 15px;">${pack.name}</div>
-                        <div class="shop-title-desc" style="font-size: 11px;">${pack.desc}</div>
-                    </div>
+            const badgeHtml = pack.id === 'coin-pack-2' ? `<span class="pack-badge">Best Value</span>` : '';
+            
+            let sparks = '';
+            for (let i = 0; i < pack.particles; i++) {
+                sparks += `<span class="coin-spark" style="animation-delay: ${i * 0.3}s; left: ${15 + Math.random() * 70}%; top: ${20 + Math.random() * 60}%;"></span>`;
+            }
+            
+            card.innerHTML = `
+                ${badgeHtml}
+                <div class="coin-card-particles">${sparks}</div>
+                <div class="coin-pack-icon-wrapper">
+                    <span class="coin-pack-icon">${pack.icon}</span>
                 </div>
-                <span class="shop-grid-price-tag" style="background: linear-gradient(90deg, #facc15, #eab308); color: #000; font-weight: 900; border: none; padding: 6px 12px; border-radius: 6px; z-index: 2;">${pack.price}</span>
+                <div class="coin-card-details">
+                    <div class="coin-card-name">${pack.name}</div>
+                    <div class="coin-card-desc">${pack.desc}</div>
+                </div>
+                <span class="coin-card-price-tag">
+                    Buy ${pack.price}
+                </span>
             `;
-            gridContainer.appendChild(row);
+            gridContainer.appendChild(card);
         });
         return;
     }
@@ -866,21 +969,23 @@ function renderStreakModal() {
     if (!streakCalendarGrid || !streakModalCountDesc || !streakClaimBtn || !modalStreak) return;
     
     streakCalendarGrid.innerHTML = '';
-    const activeIndex = userState.streakCheckins.indexOf(false);
+    const claimedCount = userState.streakCheckins.filter(x => x === true).length;
     streakModalCountDesc.textContent = `${userState.streak} Day Streak Active!`;
+    
+    const todayStr = new Date().toDateString();
+    const lastClaim = localStorage.getItem(`last_streak_claim_${userState.id || 'guest'}`);
+    const hasClaimedToday = (lastClaim === todayStr);
     
     for (let i = 0; i < 7; i++) {
         const slot = document.createElement('div');
         let dayClass = 'streak-day-slot';
         let iconHtml = '';
+        const dayNumber = claimedCount + 1 + i;
         
-        const isChecked = userState.streakCheckins[i];
-        const isActiveToday = (i === activeIndex);
+        // Slot 0 (the next unchecked day) is claimable today ONLY if we haven't checked in yet today
+        const isActiveToday = (i === 0 && !hasClaimedToday && claimedCount < 7);
         
-        if (isChecked) {
-            dayClass += ' checked';
-            iconHtml = `<svg class="slot-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`;
-        } else if (isActiveToday) {
+        if (isActiveToday) {
             dayClass += ' active-today';
             iconHtml = `<svg class="slot-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
         } else {
@@ -890,21 +995,25 @@ function renderStreakModal() {
         
         slot.className = dayClass;
         slot.innerHTML = `
-            <span class="streak-day-label">Day ${i + 1}</span>
+            <span class="streak-day-label">Day ${dayNumber}</span>
             ${iconHtml}
-            <span class="streak-day-val" style="font-size:10px;">${isChecked ? 'Claimed' : (isActiveToday ? 'Claim!' : 'Locked')}</span>
+            <span class="streak-day-val" style="font-size:10px;">${isActiveToday ? 'Claim!' : (i === 0 && hasClaimedToday ? 'Tomorrow' : 'Locked')}</span>
         `;
         
         if (isActiveToday) slot.addEventListener('click', claimDailyCheckIn);
         streakCalendarGrid.appendChild(slot);
     }
     
-    if (activeIndex === -1) {
+    if (claimedCount === 7) {
         streakClaimBtn.textContent = "Weekly Cycle Complete!";
         streakClaimBtn.disabled = true;
         streakClaimBtn.className = "result-btn claimed";
+    } else if (hasClaimedToday) {
+        streakClaimBtn.textContent = "Come Back Tomorrow!";
+        streakClaimBtn.disabled = true;
+        streakClaimBtn.className = "result-btn claimed";
     } else {
-        streakClaimBtn.textContent = `Claim Day ${activeIndex + 1} Check-in`;
+        streakClaimBtn.textContent = `Claim Day ${claimedCount + 1} Check-in`;
         streakClaimBtn.disabled = false;
         streakClaimBtn.className = "result-btn";
         streakClaimBtn.onclick = claimDailyCheckIn;
@@ -916,25 +1025,45 @@ function claimDailyCheckIn() {
     const activeIndex = userState.streakCheckins.indexOf(false);
     if (activeIndex === -1) return;
     
+    const todayStr = new Date().toDateString();
+    const lastClaim = localStorage.getItem(`last_streak_claim_${userState.id || 'guest'}`);
+    if (lastClaim === todayStr) {
+        alert("You have already checked in today! Come back tomorrow.");
+        return;
+    }
+    
     userState.streakCheckins[activeIndex] = true;
     userState.streak++;
     
+    localStorage.setItem(`last_streak_claim_${userState.id || 'guest'}`, todayStr);
+    
     const coinReward = 100;
     userState.coins += coinReward;
+    
+    // Grant 100 XP
+    userState.xp += 100;
+    if (userState.xp >= userState.xpNeeded) {
+        userState.xp -= userState.xpNeeded;
+        userState.level++;
+        userState.xpNeeded = getXpNeeded(userState.level);
+    }
     
     document.body.style.background = 'radial-gradient(circle at top, #ca8a04 0%, #060a12 100%)';
     setTimeout(() => {
         document.body.style.background = 'var(--bg-gradient)';
     }, 200);
     
-    alert(`Day ${activeIndex + 1} checked in successfully! Current Streak: ${userState.streak}d! Reward: +${coinReward} Coins.`);
+    const modalStreak = document.getElementById('modal-streak');
+    if (modalStreak) modalStreak.classList.remove('active');
+    
+    const modalRewardClaim = document.getElementById('modal-reward-claim');
+    if (modalRewardClaim) modalRewardClaim.classList.add('active');
     
     if (userState.streakCheckins.every(x => x === true)) {
         userState.streakCheckins = [false, false, false, false, false, false, false];
     }
     
     updateUI();
-    renderStreakModal();
     saveState();
 }
 
@@ -1017,6 +1146,18 @@ function cancelMatchmaking() {
 function triggerFaceoff() {
     document.getElementById('comp-queue-panel').style.display = 'none';
     document.getElementById('comp-faceoff-panel').style.display = 'flex';
+    
+    // HEFTIG Match found screen shake and flash effects
+    const panel = document.getElementById('comp-faceoff-panel');
+    const flash = document.getElementById('comp-faceoff-flash');
+    if (panel) {
+        panel.classList.add('shake-panel');
+        setTimeout(() => panel.classList.remove('shake-panel'), 800);
+    }
+    if (flash) {
+        flash.classList.add('faceoff-flash-active');
+        setTimeout(() => flash.classList.remove('faceoff-flash-active'), 800);
+    }
     
     const meCard = document.getElementById('comp-card-me');
     const oppCard = document.getElementById('comp-opponent-card');
@@ -1173,20 +1314,14 @@ function handleSocketMatchEnd(data) {
     
     const rematchBtn = document.getElementById('result-rematch-btn');
     if (rematchBtn) {
-        if (data.isDoubleOrNothing) {
-            rematchBtn.style.display = 'none';
-        } else {
-            rematchBtn.style.display = 'block';
-            rematchBtn.onclick = () => {
-                const modalResult = document.getElementById('modal-result');
-                if (modalResult) modalResult.classList.remove('active');
-                
-                socket.emit('rematch_double_or_nothing', {
-                    matchId: data.matchId,
-                    eloChange: data.eloChange
-                });
-            };
-        }
+        rematchBtn.style.display = 'block';
+        rematchBtn.onclick = () => {
+            const modalResult = document.getElementById('modal-result');
+            if (modalResult) modalResult.classList.remove('active');
+            
+            const currentMode = compGame.mode || 'math';
+            startRankedMatchmaking(currentMode);
+        };
     }
     
     const modalResult = document.getElementById('modal-result');
@@ -1788,17 +1923,117 @@ function bindAllTriggers() {
         };
     }
     
+    // Close reward claim modal
+    const rewardClaimCloseBtn = document.getElementById('reward-claim-close-btn');
+    if (rewardClaimCloseBtn) {
+        rewardClaimCloseBtn.onclick = () => {
+            const m = document.getElementById('modal-reward-claim');
+            if (m) m.classList.remove('active');
+        };
+    }
+
+    // Open friends modal
+    const friendsHeaderTrigger = document.getElementById('friends-header-trigger');
+    const modalFriends = document.getElementById('modal-friends');
+    if (friendsHeaderTrigger && modalFriends) {
+        friendsHeaderTrigger.onclick = () => {
+            modalFriends.classList.add('active');
+            renderFriendsList();
+        };
+    }
+
+    const friendsCloseBtn = document.getElementById('friends-close-btn');
+    if (friendsCloseBtn && modalFriends) {
+        friendsCloseBtn.onclick = () => {
+            modalFriends.classList.remove('active');
+        };
+    }
+
+    // Add friend input action
+    const friendsAddActionBtn = document.getElementById('friends-add-action-btn');
+    const friendsUsernameInput = document.getElementById('friends-username-input');
+    if (friendsAddActionBtn && friendsUsernameInput) {
+        friendsAddActionBtn.onclick = () => {
+            addFriend(friendsUsernameInput.value);
+            friendsUsernameInput.value = '';
+        };
+    }
+
+    // Invite sharing actions
+    const shareWhatsappBtn = document.getElementById('share-whatsapp-btn');
+    if (shareWhatsappBtn) {
+        shareWhatsappBtn.onclick = () => {
+            window.open(`https://api.whatsapp.com/send?text=Duel%20me%20on%20CoreDuel!%20http://localhost:8000`, '_blank');
+        };
+    }
+
+    const shareCopyBtn = document.getElementById('share-copy-btn');
+    if (shareCopyBtn) {
+        shareCopyBtn.onclick = () => {
+            navigator.clipboard.writeText("http://localhost:8000").then(() => {
+                alert("Invite link copied to clipboard!");
+            });
+        };
+    }
+
+    // Avatar presets modal picker triggers
+    const profileEditAvatarTrigger = document.getElementById('profile-edit-avatar-trigger');
+    const modalAvatarPicker = document.getElementById('modal-avatar-picker');
+    if (profileEditAvatarTrigger && modalAvatarPicker) {
+        profileEditAvatarTrigger.onclick = () => {
+            selectedPickerSeed = userState.avatarSeed;
+            modalAvatarPicker.classList.add('active');
+            renderAvatarPicker();
+        };
+    }
+
+    const avatarPickerCloseBtn = document.getElementById('avatar-picker-close-btn');
+    if (avatarPickerCloseBtn && modalAvatarPicker) {
+        avatarPickerCloseBtn.onclick = () => {
+            modalAvatarPicker.classList.remove('active');
+        };
+    }
+
+    const avatarPickerConfirmBtn = document.getElementById('avatar-picker-confirm-btn');
+    if (avatarPickerConfirmBtn && modalAvatarPicker) {
+        avatarPickerConfirmBtn.onclick = () => {
+            if (selectedPickerSeed) {
+                userState.avatarSeed = selectedPickerSeed;
+                updateUI();
+                saveState();
+            }
+            modalAvatarPicker.classList.remove('active');
+        };
+    }
+
+    // Leaderboard sub-tabs click handlers
+    const leaderboardSubtabs = document.getElementById('leaderboard-subtabs');
+    if (leaderboardSubtabs) {
+        leaderboardSubtabs.querySelectorAll('.lb-subtab').forEach(btn => {
+            btn.onclick = () => {
+                activeLbSubcategory = btn.getAttribute('data-lb-sub');
+                renderLeaderboard();
+            };
+        });
+    }
+
     window.onclick = (e) => {
         const modalStreak = document.getElementById('modal-streak');
         const modalTournament = document.getElementById('modal-tournament');
         const modalInspect = document.getElementById('modal-shop-inspect');
         const modalResult = document.getElementById('modal-result');
+        const modalFriends = document.getElementById('modal-friends');
+        const modalAvatarPicker = document.getElementById('modal-avatar-picker');
+        const modalRewardClaim = document.getElementById('modal-reward-claim');
         if (e.target === modalProfile) modalProfile.classList.remove('active');
         if (e.target === modalStreak) modalStreak.classList.remove('active');
         if (e.target === modalTournament) modalTournament.classList.remove('active');
         if (e.target === modalResult) modalResult.classList.remove('active');
         if (e.target === modalSettings) modalSettings.classList.remove('active');
         if (e.target === modalInspect) closeShopInspect();
+        if (e.target === modalFriends) modalFriends.classList.remove('active');
+        if (e.target === modalAvatarPicker) modalAvatarPicker.classList.remove('active');
+        if (e.target === modalRewardClaim) modalRewardClaim.classList.remove('active');
     };
     
     const bottomTabbar = document.getElementById('bottom-tabbar');
@@ -1902,7 +2137,102 @@ function setupOnboardingListeners() {
         }
     }
 }
+// ==================== FRIENDS & AVATAR PICKER SYSTEM HELPERS ====================
+let selectedPickerSeed = null;
 
+function addFriend(friendName) {
+    if (!friendName) return;
+    friendName = friendName.trim();
+    if (friendName === userState.name) {
+        alert("You cannot add yourself as a friend!");
+        return;
+    }
+    
+    userState.friends = userState.friends || [];
+    
+    // Check if already added
+    if (userState.friends.some(f => f.name.toLowerCase() === friendName.toLowerCase())) {
+        alert("This player is already in your friend list!");
+        return;
+    }
+    
+    const elo = Math.floor(Math.random() * 800) + 100;
+    const newFriend = {
+        name: friendName,
+        elo: elo,
+        streak: Math.floor(Math.random() * 5),
+        title: elo > 600 ? 'Math Master' : 'Dueling Novice',
+        frame: elo > 800 ? 'frame-neon-yellow' : 'default',
+        background: elo > 1000 ? 'bg-master' : 'bg-default',
+        avatarSeed: friendName,
+        premium: elo > 900 ? 2 : 0
+    };
+    
+    userState.friends.push(newFriend);
+    saveState();
+    updateUI();
+    renderLeaderboard();
+    renderFriendsList();
+    alert(`Successfully added ${friendName} as a friend!`);
+}
+
+function renderFriendsList() {
+    const container = document.getElementById('friends-list-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    userState.friends = userState.friends || [];
+    if (userState.friends.length === 0) {
+        container.innerHTML = `<span style="font-size:11px; color:var(--color-text-muted); font-style:italic;">No friends added yet.</span>`;
+        return;
+    }
+    
+    userState.friends.forEach(f => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+        item.style.background = 'rgba(255,255,255,0.03)';
+        item.style.border = '1px solid rgba(255,255,255,0.05)';
+        item.style.borderRadius = '8px';
+        item.style.padding = '8px 12px';
+        
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${f.avatarSeed}" style="width:24px; height:24px; border-radius:50%;" alt="Avatar">
+                <span style="font-size:12px; font-weight:800; color:#fff;">${f.name}</span>
+            </div>
+            <span style="font-size:11px; color:var(--color-accent); font-weight:800;">${f.elo} Elo</span>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function renderAvatarPicker() {
+    const grid = document.getElementById('avatar-presets-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    const presets = ["Nova", "Aura", "Quantum", "Volt", "Zen", "Atlas", "Pixel", "Cosmo", "Echo", "Titan", "Cyber", "Aero"];
+    presets.forEach(seed => {
+        const opt = document.createElement('div');
+        opt.style.borderRadius = '50%';
+        opt.style.padding = '3px';
+        opt.style.border = seed === selectedPickerSeed ? '2px solid var(--color-accent)' : '2px solid transparent';
+        opt.style.cursor = 'pointer';
+        opt.style.display = 'flex';
+        opt.style.alignItems = 'center';
+        opt.style.justifyContent = 'center';
+        
+        opt.onclick = () => {
+            selectedPickerSeed = seed;
+            renderAvatarPicker();
+        };
+        
+        opt.innerHTML = `<img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${seed}" style="width:100%; height:100%; border-radius:50%;" alt="Preset">`;
+        grid.appendChild(opt);
+    });
+}
 // ==================== APP INITIALIZATION ====================
 function init() {
     modalProfile = document.getElementById('modal-profile');
