@@ -2114,23 +2114,32 @@ main::-webkit-scrollbar {
     text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
 }
 
-/* When bg-master background is equipped AND player is #1, remove gold border so cosmic bg shines through */
+/* Rank #1 with Cosmic BG — looks exactly like the bg-master shop card (cosmic purple, no gold) */
 .leaderboard-item.rank-first.bg-master-equipped {
-    background: transparent;
-    border: none;
-    box-shadow: none;
+    background: radial-gradient(circle at 50% 30%, #1e1145 0%, #0c051f 45%, #03010a 100%);
+    border: 2px solid #8b5cf6;
+    box-shadow:
+        0 0 20px rgba(139, 92, 246, 0.4),
+        0 0 50px rgba(236, 72, 153, 0.25),
+        0 12px 40px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(139, 92, 246, 0.2) inset;
+    transform: scale(1.02);
 }
 .leaderboard-item.rank-first.bg-master-equipped::before {
     display: none;
 }
-/* Also remove gold text overrides so cosmic purple styling wins */
+/* Use cosmic purple gradient text instead of gold */
 .leaderboard-item.rank-first.bg-master-equipped .leaderboard-rank,
 .leaderboard-item.rank-first.bg-master-equipped .leaderboard-name,
 .leaderboard-item.rank-first.bg-master-equipped .leaderboard-score {
-    color: unset;
-    text-shadow: unset;
-    filter: unset;
+    color: #a78bfa;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.65), 0 2px 4px rgba(0,0,0,0.8);
+    background: linear-gradient(90deg, #fff, #a78bfa, #facc15);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: none;
     font-size: unset;
+    font-weight: 900;
 }
 
 /* ==================== CINEMATIC FACEOFF TAKEOVER ==================== */
@@ -3200,24 +3209,32 @@ body.theme-aurora::before {
     text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
 }
 
-/* When bg-master equipped AND rank 1 — cosmic bg overrides gold completely */
+/* Rank #1 with Cosmic BG — cosmic purple wins over gold (matches bg-master shop card exactly) */
 .leaderboard-item.rank-first.bg-master-equipped {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: radial-gradient(circle at 50% 30%, #1e1145 0%, #0c051f 45%, #03010a 100%) !important;
+    border: 2px solid #8b5cf6 !important;
+    box-shadow:
+        0 0 20px rgba(139, 92, 246, 0.4),
+        0 0 50px rgba(236, 72, 153, 0.25),
+        0 12px 40px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(139, 92, 246, 0.2) inset !important;
+    transform: scale(1.02);
 }
 .leaderboard-item.rank-first.bg-master-equipped::before {
     display: none !important;
 }
-/* Remove all gold text overrides */
+/* Cosmic purple gradient text — no gold */
 .leaderboard-item.rank-first.bg-master-equipped .leaderboard-rank,
 .leaderboard-item.rank-first.bg-master-equipped .leaderboard-name,
 .leaderboard-item.rank-first.bg-master-equipped .leaderboard-score {
-    color: unset !important;
-    text-shadow: unset !important;
-    filter: unset !important;
+    color: #a78bfa !important;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.65), 0 2px 4px rgba(0,0,0,0.8) !important;
+    background: linear-gradient(90deg, #fff, #a78bfa, #facc15) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: none !important;
     font-size: unset !important;
-    font-weight: unset !important;
+    font-weight: 900 !important;
 }
 
 /* Premium Highlight bottom tabbar options */
