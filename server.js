@@ -761,8 +761,10 @@ function triggerBotIqSolver(match) {
     const bot = match.p2;
     const seqLen = match.currentIqQuestion.sequence.length;
     
-    // Memorization phase is 1.5s. Add 300ms reaction delay.
-    setTimeout(() => {
+    if (match.botTimerId) clearTimeout(match.botTimerId);
+    
+    // Memorization phase is 1.5s. Add 200ms reaction delay.
+    match.botTimerId = setTimeout(() => {
         if (match.ended || bot.failed || bot.completed) return;
         
         let currentClickIndex = 0;
@@ -804,15 +806,14 @@ function triggerBotIqSolver(match) {
             checkIqRoundOver(match);
             
             if (!bot.failed && !bot.completed) {
-                const minSpeed = bot.solveSpeedRange[0];
-                const maxSpeed = bot.solveSpeedRange[1];
-                const delay = Math.floor(Math.random() * (maxSpeed - minSpeed)) + minSpeed;
+                // Static delay: 667ms per tile click so seqLen takes exactly seqLen / 1.5 seconds!
+                const delay = 667;
                 match.botTimerId = setTimeout(doBotClick, delay);
             }
         }
         
         doBotClick();
-    }, 1800);
+    }, 1700);
 }
 
 function checkIqRoundOver(match) {

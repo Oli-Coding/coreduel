@@ -263,15 +263,7 @@ function updateUI() {
         }
     }
 
-    // Toggle Simulated Ad Banner based on premium status (Ultimate Deal = Ad-free)
-    const adBanner = document.getElementById('simulated-ad-banner');
-    if (adBanner) {
-        if (userState.premium === 2) {
-            adBanner.style.display = 'none';
-        } else {
-            adBanner.style.display = 'flex';
-        }
-    }
+
 
     // Update Premium Tab Option Cards Active States
     const buyLiteBtn = document.getElementById('buy-premium-lite-btn');
@@ -646,7 +638,7 @@ function renderPass() {
         if (isPremClaimed) {
             premBtnHtml = `<button class="pass-reward-claim-btn claimed">Claimed</button>`;
         } else if (isUnlocked) {
-            if (userState.premium === 1) {
+            if (userState.premium >= 1) {
                 premBtnHtml = `<button class="pass-reward-claim-btn claimable" onclick="claimPassReward('prem', ${reward.tier})">Claim</button>`;
             } else {
                 premBtnHtml = `<button class="pass-reward-claim-btn locked" onclick="switchTab('premium', 2)">Premium</button>`;
@@ -685,7 +677,7 @@ window.claimPassReward = function(type, tier) {
     if (userState.passClaims.includes(claimKey)) return;
     
     // If premium claim, verify ownership
-    if (type === 'prem' && userState.premium !== 1) {
+    if (type === 'prem' && userState.premium < 1) {
         switchTab('premium', 2);
         return;
     }
