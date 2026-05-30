@@ -2683,14 +2683,14 @@ body.theme-aurora::before {
 /* ==================== THE GRANDMASTER SOLAR MASTER EXPERIENCE ==================== */
 
 .bg-master-equipped {
-    background: radial-gradient(circle at 50% 30%, #3a220a 0%, #150a02 45%, #050200 100%) !important;
-    border: 2px solid #f59e0b !important;
+    background: radial-gradient(circle at 50% 30%, #1e1145 0%, #0c051f 45%, #03010a 100%) !important;
+    border: 2px solid #8b5cf6 !important;
     border-radius: var(--border-radius-lg) !important;
     box-shadow: 
-        0 0 20px rgba(250, 204, 21, 0.4),
-        0 0 50px rgba(239, 68, 68, 0.12),
+        0 0 20px rgba(139, 92, 246, 0.4),
+        0 0 50px rgba(236, 72, 153, 0.25),
         0 12px 40px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(250, 204, 21, 0.2) inset !important;
+        0 0 20px rgba(139, 92, 246, 0.2) inset !important;
     position: relative;
     overflow: hidden;
     transform-style: preserve-3d;
@@ -2703,10 +2703,10 @@ body.theme-aurora::before {
     transform: translateY(-8px) scale(1.03) rotateX(4deg) rotateY(-2deg) !important;
     border-radius: var(--border-radius-lg) !important;
     box-shadow: 
-        0 0 40px rgba(250, 204, 21, 0.6),
-        0 0 70px rgba(239, 68, 68, 0.25),
+        0 0 40px rgba(139, 92, 246, 0.6),
+        0 0 70px rgba(236, 72, 153, 0.4),
         0 20px 50px rgba(0, 0, 0, 0.9),
-        0 0 30px rgba(250, 204, 21, 0.35) inset !important;
+        0 0 30px rgba(139, 92, 246, 0.35) inset !important;
 }
 
 /* Layer 1: Warp Grid Backdrop */
@@ -2715,8 +2715,8 @@ body.theme-aurora::before {
     position: absolute;
     top: -50%; left: -50%; width: 200%; height: 200%;
     background-image: 
-        linear-gradient(rgba(250, 204, 21, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(250, 204, 21, 0.03) 1px, transparent 1px);
+        linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
     transform: rotateX(45deg) translateZ(-50px);
     opacity: 0.75;
@@ -2753,7 +2753,7 @@ body.theme-aurora::before {
     top: 50%; left: 50%;
     width: 280px; height: 120px;
     margin-left: -140px; margin-top: -60px;
-    border: 1.5px solid rgba(250, 204, 21, 0.12);
+    border: 1.5px solid rgba(139, 92, 246, 0.2);
     border-radius: 50%;
     transform: rotateX(70deg) rotateY(-15deg) rotateZ(0deg);
     pointer-events: none;
@@ -2768,7 +2768,7 @@ body.theme-aurora::before {
     width: 8px; height: 8px;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0 0 12px #fbbf24, 0 0 6px #f59e0b;
+    box-shadow: 0 0 12px #a78bfa, 0 0 6px #ec4899;
 }
 
 @keyframes orbit-rotate {
@@ -2790,10 +2790,10 @@ body.theme-aurora::before {
     position: absolute;
     bottom: -20px;
     width: 6px; height: 6px;
-    background: radial-gradient(circle, #fff 10%, #fbbf24 60%, transparent 100%);
+    background: radial-gradient(circle, #fff 10%, #a78bfa 60%, transparent 100%);
     border-radius: 50%;
     opacity: 0;
-    filter: drop-shadow(0 0 6px #ea580c);
+    filter: drop-shadow(0 0 6px #ec4899);
     animation: premium-spark-float infinite ease-in-out;
 }
 
@@ -2831,15 +2831,15 @@ body.theme-aurora::before {
     }
 }
 
-/* Layer 5: Royal Crown Seals in Corners */
+/* Layer 5: Cosmic Planet Seals in Corners */
 .bg-master-equipped::before {
-    content: '👑';
+    content: '🪐';
     position: absolute;
     top: 10px; right: 10px;
     font-size: 14px;
-    opacity: 0.45;
+    opacity: 0.55;
     z-index: 2;
-    filter: drop-shadow(0 0 4px #fbbf24);
+    filter: drop-shadow(0 0 4px #a78bfa);
     animation: royal-crown-float 2.5s infinite alternate ease-in-out;
 }
 
@@ -2853,9 +2853,9 @@ body.theme-aurora::before {
 .bg-master-equipped .leaderboard-name,
 .bg-master-equipped .leaderboard-score,
 .bg-master-equipped .shop-title-name {
-    color: #facc15 !important;
-    text-shadow: 0 0 10px rgba(250, 204, 21, 0.65), 0 2px 4px rgba(0,0,0,0.8) !important;
-    background: linear-gradient(90deg, #fff, #fbbf24, #f59e0b);
+    color: #a78bfa !important;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.65), 0 2px 4px rgba(0,0,0,0.8) !important;
+    background: linear-gradient(90deg, #fff, #a78bfa, #facc15);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 900 !important;
@@ -3868,10 +3868,11 @@ body.theme-aurora::before {
 }
 
 /* Ensure images clip correctly and glows render outside */
-.profile-placeholder.frame-fire, .profile-placeholder.frame-matrix, .profile-placeholder.frame-neon-yellow,
-.profile-modal-avatar.frame-fire, .profile-modal-avatar.frame-matrix, .profile-modal-avatar.frame-neon-yellow,
-.shop-grid-preview.frame-fire, .shop-grid-preview.frame-matrix, .shop-grid-preview.frame-neon-yellow,
-#inspect-avatar-preview.frame-fire, #inspect-avatar-preview.frame-matrix, #inspect-avatar-preview.frame-neon-yellow {
+.profile-placeholder.frame-fire, .profile-placeholder.frame-matrix, .profile-placeholder.frame-neon-yellow, .profile-placeholder.frame-cosmic,
+.profile-modal-avatar.frame-fire, .profile-modal-avatar.frame-matrix, .profile-modal-avatar.frame-neon-yellow, .profile-modal-avatar.frame-cosmic,
+.shop-grid-preview.frame-fire, .shop-grid-preview.frame-matrix, .shop-grid-preview.frame-neon-yellow, .shop-grid-preview.frame-cosmic,
+#inspect-avatar-preview.frame-fire, #inspect-avatar-preview.frame-matrix, #inspect-avatar-preview.frame-neon-yellow, #inspect-avatar-preview.frame-cosmic,
+.preview-avatar-mini-wrapper.frame-cosmic {
     overflow: visible !important;
 }
 
@@ -4474,7 +4475,7 @@ body.theme-aurora::before {
 .preview-avatar-mini-wrapper img {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: 50% !important;
     object-fit: cover;
 }
 

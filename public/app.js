@@ -352,6 +352,33 @@ function switchTab(tabId, index) {
     else if (tabId === 'shop') renderShop();
 }
 
+function viewBackgroundInShop() {
+    activeShopCategory = 'backgrounds';
+    
+    const shopCategoriesTabbar = document.getElementById('shop-categories-tabbar');
+    if (shopCategoriesTabbar) {
+        shopCategoriesTabbar.querySelectorAll('.shop-tab').forEach(b => {
+            if (b.getAttribute('data-shop-cat') === 'backgrounds') b.classList.add('active');
+            else b.classList.remove('active');
+        });
+    }
+
+    switchTab('shop', 4);
+    
+    setTimeout(() => {
+        const item = document.querySelector('.preview-bg-master');
+        if (item) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            item.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.8)';
+            item.style.borderColor = '#8b5cf6';
+            setTimeout(() => {
+                item.style.boxShadow = '';
+                item.style.borderColor = '';
+            }, 2000);
+        }
+    }, 200);
+}
+
 // ==================== LEADERBOARD RENDER ====================
 let activeLbCategory = 'global';
 
@@ -606,7 +633,7 @@ const shopTitles = [
 ];
 
 const shopBackgrounds = [
-    { id: "bg-master", name: "Grandmaster Particle BG", desc: "Legendary animated particles floating in brownish gold light.", price: 2000, type: 'background' },
+    { id: "bg-master", name: "Cosmic Particle BG", desc: "Legendary animated particles floating in deep cosmic space.", price: 2000, type: 'background' },
     { id: "bg-default", name: "Default Theme BG", desc: "The standard sleek dark-blue aesthetic.", price: 0, type: 'background' }
 ];
 
