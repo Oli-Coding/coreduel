@@ -4714,12 +4714,24 @@ body.theme-aurora::before {
 
 /* Shift modal overlay contents slightly higher */
 .profile-modal, .modal-overlay .result-card {
-    transform: translateY(-20px) !important;
+    transform: translateY(-35px) !important;
 }
 
 /* Lift the ranking list and sections slightly */
 #page-ranking {
-    margin-top: -15px !important;
+    margin-top: -30px !important;
+}
+
+.podium-container {
+    height: 150px !important;
+    margin-top: 2px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 4px !important;
+}
+
+/* Higher z-index to overlay avatar picker on top of profile card */
+#modal-avatar-picker, #modal-reward-claim {
+    z-index: 1200 !important;
 }
 
 /* ==================== PREMIUM FRIENDS MODAL STYLING ==================== */
@@ -4764,6 +4776,51 @@ body.theme-aurora::before {
     transform: translateY(-2px);
     background: rgba(255, 255, 255, 0.04) !important;
     border-color: rgba(167, 139, 250, 0.2) !important;
+}
+
+/* Continuous floating/pulsing state for player cards during faceoff */
+.cinematic-player.me {
+    animation: player-slide-in-left 1s cubic-bezier(0.175, 0.885, 0.32, 1.1) 0.2s both, player-float-left 3s ease-in-out infinite alternate 1.2s !important;
+}
+
+.cinematic-player.opponent {
+    animation: player-slide-in-right 1s cubic-bezier(0.175, 0.885, 0.32, 1.1) 0.2s both, player-float-right 3s ease-in-out infinite alternate 1.2s !important;
+}
+
+.opponent .orbit-ring.inner {
+    border-left-color: rgba(239, 68, 68, 0.4) !important;
+    border-right-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.cinematic-vs-reactor {
+    animation: vs-zoom-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.4s both, reactor-pulse-spin 3s ease-in-out infinite alternate 1.2s !important;
+}
+
+@keyframes player-float-left {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+@keyframes player-float-right {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes reactor-pulse-spin {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.15) rotate(10deg); }
+}
+
+@keyframes background-drift-left {
+    0% { transform: translate(0, 0) rotate(-15deg); opacity: 0.95; }
+    50% { opacity: 0.85; }
+    100% { transform: translate(-2%, -2%) rotate(-14deg); opacity: 0.95; }
+}
+
+@keyframes background-drift-right {
+    0% { transform: translate(0, 0) rotate(-15deg); opacity: 0.95; }
+    50% { opacity: 0.85; }
+    100% { transform: translate(2%, 2%) rotate(-16deg); opacity: 0.95; }
 }
 
 

@@ -383,15 +383,11 @@ function renderLeaderboard() {
     const podiumContainer = document.querySelector('.podium-container');
     const listContainer = document.getElementById('leaderboard-list');
     
-    if (activeLbCategory === 'global') {
-        if (subTabbar) subTabbar.style.display = 'flex';
-    } else {
-        if (subTabbar) subTabbar.style.display = 'none';
-        activeLbSubcategory = 'global_all';
-    }
+    // Sub-tabbar is ALWAYS visible
+    if (subTabbar) subTabbar.style.display = 'flex';
 
     // Handle podium visibility
-    if (activeLbCategory === 'global' && activeLbSubcategory !== 'global_all') {
+    if (activeLbSubcategory !== 'global_all') {
         if (podiumContainer) podiumContainer.style.display = 'none';
     } else {
         if (podiumContainer) podiumContainer.style.display = 'flex';
@@ -408,18 +404,29 @@ function renderLeaderboard() {
         });
     }
 
-    // Render Friends List Empty state or entries
-    if (activeLbCategory === 'global' && activeLbSubcategory === 'global_friends') {
+    const divider = document.getElementById('leaderboard-my-divider');
+    const myRow = document.getElementById('leaderboard-my-row');
+
+    // Filter by Friends
+    if (activeLbSubcategory === 'global_friends') {
         if (listContainer) {
             listContainer.innerHTML = '';
             userState.friends = userState.friends || [];
             
             // Build temporary friends list with user included
             const fullList = [
-                { name: userState.name, elo: userState.elo, streak: userState.streak, title: userState.equippedTitle, frame: userState.equippedFrame, background: userState.equippedBackground, avatarSeed: userState.avatarSeed, premium: userState.premium },
+                { name: userState.name, elo: userState.elo, streak: userState.streak, title: userState.equippedTitle, frame: userState.equippedFrame, background: userState.equippedBackground, avatarSeed: userState.avatarSeed, premium: userState.premium, mathBest: userState.mathBest, iqBest: userState.iqBest },
                 ...userState.friends
             ];
-            fullList.sort((a, b) => b.elo - a.elo);
+            
+            // Sort depending on selected Category
+            if (activeLbCategory === 'math') {
+                fullList.sort((a, b) => (b.mathBest || 100) - (a.mathBest || 100));
+            } else if (activeLbCategory === 'iq') {
+                fullList.sort((a, b) => (b.iqBest || 100) - (a.iqBest || 100));
+            } else {
+                fullList.sort((a, b) => b.elo - a.elo);
+            }
             
             if (userState.friends.length === 0) {
                 listContainer.innerHTML = `
@@ -438,21 +445,20 @@ function renderLeaderboard() {
                     };
                 }
             } else {
+                // Show friends list (showing top 3 elements or all friends since it is filtered)
                 fullList.forEach((player, i) => {
                     renderLeaderboardItem(listContainer, player, i);
                 });
             }
         }
         
-        // Hide Position when rendering custom lists
-        const divider = document.getElementById('leaderboard-my-divider');
-        const myRow = document.getElementById('leaderboard-my-row');
         if (divider) divider.style.display = 'none';
         if (myRow) myRow.style.display = 'none';
         return;
     }
 
-    if (activeLbCategory === 'global' && activeLbSubcategory === 'global_clubs') {
+    // Filter by Clubs
+    if (activeLbSubcategory === 'global_clubs') {
         if (listContainer) {
             listContainer.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; gap:12px;">
@@ -462,25 +468,6 @@ function renderLeaderboard() {
                 </div>
             `;
         }
-        const divider = document.getElementById('leaderboard-my-divider');
-        const myRow = document.getElementById('leaderboard-my-row');
-        if (divider) divider.style.display = 'none';
-        if (myRow) myRow.style.display = 'none';
-        return;
-    }
-
-    if (activeLbCategory === 'global' && activeLbSubcategory === 'global_placeholder') {
-        if (listContainer) {
-            listContainer.innerHTML = `
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; gap:12px;">
-                    <span style="font-size:32px;">🏆</span>
-                    <h4 style="font-size:14px; margin:0; color:#f59e0b;">Championship Leagues</h4>
-                    <p style="font-size:11px; color:var(--color-text-secondary); margin:0; max-width:240px;">Weekly regional brackets, cup tournaments, and championship rules are currently in development.</p>
-                </div>
-            `;
-        }
-        const divider = document.getElementById('leaderboard-my-divider');
-        const myRow = document.getElementById('leaderboard-my-row');
         if (divider) divider.style.display = 'none';
         if (myRow) myRow.style.display = 'none';
         return;
@@ -522,7 +509,7 @@ function renderLeaderboard() {
 
             if (listContainer) {
                 listContainer.innerHTML = '';
-                list.slice(0, 5).forEach((player, i) => {
+                list.slice(0, 3).forEach((player, i) => {
                     renderLeaderboardItem(listContainer, player, i);
                 });
             }
@@ -533,7 +520,7 @@ function renderLeaderboard() {
             
             if (myRowContainer && divider) {
                 myRowContainer.innerHTML = '';
-                if (myIndex >= 5) {
+                if (myIndex >= 3) {
                     divider.style.display = 'block';
                     myRowContainer.style.display = 'block';
                     renderLeaderboardItem(myRowContainer, list[myIndex], myIndex);
@@ -1179,7 +1166,7 @@ function triggerFaceoff() {
     const oppBadge = document.getElementById('comp-faceoff-opp-badge');
     if (oppBadge) {
         oppBadge.className = `rank-badge ${oppRank.css}`;
-        oppBadge.textContent = oppRank.name;
+        oppBadge.textContent = `${oppRank.name} (${compGame.oppDetails.elo} Elo)`;
     }
     
     // Global Elo is combined and uses global doubled rank boundaries
@@ -1187,7 +1174,7 @@ function triggerFaceoff() {
     const myBadge = document.getElementById('comp-faceoff-my-badge');
     if (myBadge) {
         myBadge.className = `rank-badge ${myRank.css}`;
-        myBadge.textContent = myRank.name;
+        myBadge.textContent = `${myRank.name} (${userState.elo} Elo)`;
     }
     
     const countdownBar = document.getElementById('comp-faceoff-countdown-bar');
@@ -1871,11 +1858,11 @@ function bindAllTriggers() {
             }
             userState.equippedBackground = 'bg-master';
             
-            // Give Cosmic Grandmaster Title
-            if (!userState.inventory.includes('Cosmic Grandmaster')) {
-                userState.inventory.push('Cosmic Grandmaster');
+            // Give Cosmic King Title
+            if (!userState.inventory.includes('Cosmic King')) {
+                userState.inventory.push('Cosmic King');
             }
-            userState.equippedTitle = 'Cosmic Grandmaster';
+            userState.equippedTitle = 'Cosmic King';
             
             // Give Cosmic Glow Frame
             if (!userState.inventory.includes('frame-cosmic')) {
@@ -1886,7 +1873,7 @@ function bindAllTriggers() {
             updateUI();
             renderPass();
             saveState();
-            alert("ULTIMATE COSMIC DEAL UNLOCKED! 🌌 Enjoy permanent Ad-free, instant 2,000 coins, the Master Background, 'Cosmic Grandmaster' title, and the spinning 'Cosmic Glow' avatar frame!");
+            alert("ULTIMATE COSMIC DEAL UNLOCKED! 🌌 Enjoy permanent Ad-free, instant 2,000 coins, the Master Background, 'Cosmic King' title, and the spinning 'Cosmic Glow' avatar frame!");
         };
     }
     
