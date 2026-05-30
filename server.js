@@ -822,48 +822,48 @@ function checkIqRoundOver(match) {
     const p1Done = match.p1.failed || match.p1.completed;
     const p2Done = match.p2.failed || match.p2.completed;
     
-    if (p1Done && p2Done) {
-        // Both finished current round. Check if one/both failed.
-        const p1Failed = match.p1.failed;
-        const p2Failed = match.p2.failed;
+    if (!p1Done || !p2Done) return; // Not both done yet
+    
+    const p1Failed = match.p1.failed;
+    const p2Failed = match.p2.failed;
+    
+    if (p1Failed || p2Failed) {
+        // Someone failed — match is over
+        match.p1.score = match.p1.completed ? match.roundNumber : match.p1.progress;
+        match.p2.score = match.p2.completed ? match.roundNumber : match.p2.progress;
         
-        if (p1Failed || p2Failed) {
-            // Match is over! Someone failed.
-            // Setup scores so determineWinner works (higher score wins)
-            match.p1.score = match.p1.completed ? match.roundNumber : match.p1.progress;
-            match.p2.score = match.p2.completed ? match.roundNumber : match.p2.progress;
+        setTimeout(() => {
+            determineWinnerAndEndMatch(match);
+        }, 1000);
+    } else {
+        // Both completed successfully — advance to next round
+        match.roundNumber++;
+        match.currentIqQuestion = generateQuestion('iq', match.roundNumber);
+        match.botFailClickIndex = undefined;
+        
+        match.p1.progress = 0; match.p1.failed = false; match.p1.completed = false;
+        match.p2.progress = 0; match.p2.failed = false; match.p2.completed = false;
+        
+        if (match.botTimerId) clearTimeout(match.botTimerId);
+        if (match.matchTimerId) clearTimeout(match.matchTimerId);
+        
+        setTimeout(() => {
+            if (match.ended) return;
             
-            setTimeout(() => {
-                determineWinnerAndEndMatch(match);
-            }, 1000);
-            // Both succeeded! Advance to next round.
-            match.roundNumber++;
-            match.currentIqQuestion = generateQuestion('iq', match.roundNumber);
-            match.botFailClickIndex = undefined;
+            io.to(match.id).emit('iq_round_next', {
+                sequence: match.currentIqQuestion.sequence,
+                round: match.roundNumber
+            });
             
-            match.p1.progress = 0; match.p1.failed = false; match.p1.completed = false;
-            match.p2.progress = 0; match.p2.failed = false; match.p2.completed = false;
+            startIqRoundSafetyTimer(match);
             
-            if (match.botTimerId) clearTimeout(match.botTimerId);
-            if (match.matchTimerId) clearTimeout(match.matchTimerId);
-            
-            setTimeout(() => {
-                if (match.ended) return;
-                
-                io.to(match.id).emit('iq_round_next', {
-                    sequence: match.currentIqQuestion.sequence,
-                    round: match.roundNumber
-                });
-                
-                startIqRoundSafetyTimer(match);
-                
-                if (match.isBot) {
-                    triggerBotIqSolver(match);
-                }
-            }, 1200); // slight delay before starting next round animations
-        }
+            if (match.isBot) {
+                triggerBotIqSolver(match);
+            }
+        }, 1200);
     }
 }
+
 
 function determineWinnerAndEndMatch(match) {
     let winnerKey = 'draw';
