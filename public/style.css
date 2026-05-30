@@ -2114,6 +2114,16 @@ main::-webkit-scrollbar {
     text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
 }
 
+/* When bg-master background is equipped AND player is #1, remove gold border so cosmic bg shines through */
+.leaderboard-item.rank-first.bg-master-equipped {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+.leaderboard-item.rank-first.bg-master-equipped::before {
+    display: none;
+}
+
 /* ==================== CINEMATIC FACEOFF TAKEOVER ==================== */
 .cinematic-faceoff-panel {
     position: absolute;
@@ -2825,18 +2835,29 @@ body.theme-aurora::before {
     0% {
         transform: translateY(0) translateX(0) scale(0.5) rotate(0deg);
         opacity: 0;
+        animation-timing-function: ease-in;
     }
     10% {
         opacity: 1;
+        animation-timing-function: linear;
     }
-    50% {
-        transform: translateY(-80px) translateX(15px) scale(1.1) rotate(180deg);
+    /* Fast through the card itself — decelerate around the mid-card zone (~-30 to -60px) */
+    35% {
+        transform: translateY(-50px) translateX(8px) scale(0.9) rotate(120deg);
+        animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
     }
-    85% {
-        opacity: 0.9;
+    /* Midpoint deceleration zone — smooth cruise through visible card area */
+    55% {
+        transform: translateY(-110px) translateX(15px) scale(1.1) rotate(200deg);
+        opacity: 0.95;
+        animation-timing-function: ease-out;
+    }
+    80% {
+        opacity: 0.6;
+        animation-timing-function: ease-in;
     }
     100% {
-        transform: translateY(-220px) translateX(-15px) scale(0.4) rotate(360deg);
+        transform: translateY(-260px) translateX(-15px) scale(0.3) rotate(380deg);
         opacity: 0;
     }
 }
@@ -3181,6 +3202,16 @@ body.theme-aurora::before {
     color: #fbbf24;
     font-weight: 800;
     text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+}
+
+/* When bg-master equipped AND rank 1 — cosmic bg overrides gold completely */
+.leaderboard-item.rank-first.bg-master-equipped {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.leaderboard-item.rank-first.bg-master-equipped::before {
+    display: none !important;
 }
 
 /* Premium Highlight bottom tabbar options */
