@@ -402,10 +402,8 @@ function renderLeaderboard() {
         subTabbar.querySelectorAll('.lb-subtab').forEach(btn => {
             if (btn.getAttribute('data-lb-sub') === activeLbSubcategory) {
                 btn.classList.add('active');
-                btn.style.color = '#000';
             } else {
                 btn.classList.remove('active');
-                btn.style.color = '#cbd5e1';
             }
         });
     }
@@ -1479,7 +1477,7 @@ function onDragEnd() {
 
 // ==================== COMBO EFFECTS HELPER ====================
 function triggerComboEffect(streak) {
-    if (streak < 2) return;
+    return; // Combo badges disabled during duels
     
     const playArea = document.getElementById('comp-battle-panel');
     if (!playArea) return;
@@ -2189,13 +2187,7 @@ function renderFriendsList() {
     
     userState.friends.forEach(f => {
         const item = document.createElement('div');
-        item.style.display = 'flex';
-        item.style.alignItems = 'center';
-        item.style.justifyContent = 'space-between';
-        item.style.background = 'rgba(255,255,255,0.03)';
-        item.style.border = '1px solid rgba(255,255,255,0.05)';
-        item.style.borderRadius = '8px';
-        item.style.padding = '8px 12px';
+        item.className = 'friend-item-row';
         
         item.innerHTML = `
             <div style="display:flex; align-items:center; gap:8px;">

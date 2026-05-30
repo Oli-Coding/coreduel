@@ -1040,48 +1040,58 @@ main::-webkit-scrollbar {
 }
 
 .pass-tier-card {
-    background: var(--color-box-bg);
-    border: 1px solid var(--color-box-border);
-    border-radius: var(--border-radius-lg);
-    padding: 16px;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.35) 0%, rgba(15, 23, 42, 0.5) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 20px !important;
+    padding: 18px !important;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: var(--shadow-card);
-    transition: var(--transition-smooth);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3) !important;
+    transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
     position: relative;
-    scroll-margin-top: 210px; /* Offset for auto-scroll into view */
+    scroll-margin-top: 210px;
+}
+
+.pass-tier-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(250, 204, 21, 0.15) !important;
+    box-shadow: 0 16px 35px rgba(0,0,0,0.4), 0 0 20px rgba(250,204,21,0.05) !important;
 }
 
 .pass-tier-card.unlocked {
-    border-color: rgba(250, 204, 21, 0.25);
+    border-color: rgba(250, 204, 21, 0.2) !important;
 }
 
 .pass-tier-badge {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--border-radius-md);
-    background: rgba(255, 255, 255, 0.03);
-    border: 2px solid rgba(255, 255, 255, 0.08);
+    width: 50px;
+    height: 50px;
+    border-radius: 50% !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 2px dashed rgba(255, 255, 255, 0.1) !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 9px;
-    color: var(--color-text-secondary);
-    font-weight: 700;
+    font-size: 8px;
+    color: var(--color-text-muted);
+    font-weight: 800;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .pass-tier-badge span {
-    font-size: 16px;
+    font-size: 18px;
     color: var(--color-text-primary);
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .pass-tier-card.unlocked .pass-tier-badge {
-    border-color: var(--color-accent);
+    border: 2px solid var(--color-accent) !important;
     color: var(--color-accent);
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.1);
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.25);
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+    transform: scale(1.05);
 }
 
 .pass-reward-details {
@@ -2032,7 +2042,7 @@ main::-webkit-scrollbar {
     gap: 4px;
 }
 
-.lb-tab {
+.lb-tab, .lb-subtab {
     flex: 1;
     background: none;
     border: none;
@@ -2047,9 +2057,9 @@ main::-webkit-scrollbar {
     letter-spacing: 0.3px;
 }
 
-.lb-tab.active {
+.lb-tab.active, .lb-subtab.active {
     background: var(--color-accent);
-    color: #000;
+    color: #000 !important;
     box-shadow: 0 4px 12px rgba(250, 204, 21, 0.2);
 }
 
@@ -3240,7 +3250,7 @@ body.theme-aurora::before {
 .pass-reward-split {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     flex: 1;
 }
 
@@ -3248,20 +3258,32 @@ body.theme-aurora::before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(15, 23, 42, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 12px;
     padding: 10px 14px;
+    transition: all 0.2s;
+}
+
+.pass-sub-reward:hover {
+    background: rgba(15, 23, 42, 0.6) !important;
 }
 
 .pass-sub-reward.premium {
-    border-color: rgba(250, 204, 21, 0.2);
-    background: rgba(250, 204, 21, 0.03);
+    border: 1px solid rgba(250, 204, 21, 0.25) !important;
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.06) 0%, rgba(30, 41, 59, 0.3) 100%) !important;
+    box-shadow: inset 0 0 15px rgba(250, 204, 21, 0.03);
+}
+
+.pass-sub-reward.premium:hover {
+    border-color: rgba(250, 204, 21, 0.4) !important;
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%) !important;
 }
 
 .pass-sub-reward.premium .pass-reward-name {
     color: #facc15;
-    font-weight: 700;
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.15);
 }
 
 /* Settings sliders styling */
@@ -4688,6 +4710,60 @@ body.theme-aurora::before {
 @keyframes reward-bounce {
     0% { transform: translateY(0); }
     100% { transform: translateY(-10px); }
+}
+
+/* Shift modal overlay contents slightly higher */
+.profile-modal, .modal-overlay .result-card {
+    transform: translateY(-20px) !important;
+}
+
+/* Lift the ranking list and sections slightly */
+#page-ranking {
+    margin-top: -15px !important;
+}
+
+/* ==================== PREMIUM FRIENDS MODAL STYLING ==================== */
+#modal-friends .result-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+    border: 1px solid rgba(167, 139, 250, 0.25) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(167, 139, 250, 0.1) !important;
+    backdrop-filter: blur(16px);
+}
+
+.friends-search-container input {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.friends-search-container input:focus {
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.2) !important;
+}
+
+.friends-list-box {
+    background: rgba(15, 23, 42, 0.3) !important;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+.friend-item-row {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s, background 0.2s;
+    margin-bottom: 6px;
+}
+
+.friend-item-row:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(167, 139, 250, 0.2) !important;
 }
 
 

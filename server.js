@@ -515,22 +515,22 @@ function getBotDetailsForElo(elo) {
     let accuracy = 0.60;
     
     if (rankInfo.name.includes("Bronze")) {
-        speedRange = [1200, 2000];
-        accuracy = 0.85;
-    } else if (rankInfo.name.includes("Silber")) {
-        speedRange = [900, 1500];
+        speedRange = [800, 1400];
         accuracy = 0.90;
+    } else if (rankInfo.name.includes("Silber")) {
+        speedRange = [600, 1000];
+        accuracy = 0.94;
     } else if (rankInfo.name.includes("Gold")) {
-        speedRange = [700, 1100];
-        accuracy = 0.95;
-    } else if (rankInfo.name.includes("Diamant")) {
         speedRange = [500, 800];
         accuracy = 0.97;
-    } else if (rankInfo.name.includes("Champion")) {
+    } else if (rankInfo.name.includes("Diamant")) {
         speedRange = [400, 600];
         accuracy = 0.99;
-    } else {
+    } else if (rankInfo.name.includes("Champion")) {
         speedRange = [300, 500];
+        accuracy = 1.00;
+    } else {
+        speedRange = [200, 400];
         accuracy = 1.00;
     }
     
